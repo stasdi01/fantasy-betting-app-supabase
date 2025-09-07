@@ -1,0 +1,298 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.group-details-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 2rem;
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  border-bottom: 2px solid #22d3ee;
+}
+
+.modal-header h2 {
+  color: #22d3ee;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-header p {
+  color: #94a3b8;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s;
+}
+
+.close-button:hover {
+  color: #dc2626;
+  transform: rotate(90deg);
+}
+
+/* Leaderboard Section */
+.leaderboard-section {
+  padding: 2rem;
+}
+
+.leaderboard-section h3 {
+  color: #e2e8f0;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.leaderboard-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 150px 80px;
+  gap: 1rem;
+  padding: 1rem;
+  background: #0f172a;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Leaderboard Items */
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.leaderboard-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 150px 80px;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(34, 211, 238, 0.05);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.leaderboard-item:hover {
+  background: rgba(34, 211, 238, 0.1);
+  border-color: #22d3ee;
+  transform: translateX(5px);
+}
+
+/* Rank Styles */
+.leaderboard-item.rank-1 {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.1),
+    rgba(245, 158, 11, 0.05)
+  );
+  border-color: #fbbf24;
+}
+
+.leaderboard-item.rank-2 {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 163, 175, 0.1),
+    rgba(107, 114, 128, 0.05)
+  );
+  border-color: #9ca3af;
+}
+
+.leaderboard-item.rank-3 {
+  background: linear-gradient(
+    135deg,
+    rgba(217, 119, 6, 0.1),
+    rgba(180, 83, 9, 0.05)
+  );
+  border-color: #d97706;
+}
+
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rank-number {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Player */
+.player {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.player-avatar {
+  font-size: 1.5rem;
+}
+
+.player-name {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+/* Profit */
+.profit {
+  text-align: right;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.profit .positive {
+  color: #10b981;
+}
+
+.profit .negative {
+  color: #dc2626;
+}
+
+/* Win Rate */
+.winrate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.winrate-bar {
+  flex: 1;
+  height: 8px;
+  background: #334155;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.winrate-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #0891b2);
+  transition: width 0.5s ease;
+}
+
+.winrate span {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  min-width: 35px;
+}
+
+/* Bets */
+.bets {
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Group Actions */
+.group-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 2rem;
+  border-top: 1px solid #334155;
+}
+
+.leave-button,
+.invite-button {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.leave-button {
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+.leave-button:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.invite-button {
+  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+  color: white;
+}
+
+.invite-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .leaderboard-header,
+  .leaderboard-item {
+    grid-template-columns: 60px 1fr 80px;
+  }
+
+  .header-winrate,
+  .header-bets,
+  .winrate,
+  .bets {
+    display: none;
+  }
+
+  .modal-header {
+    padding: 1.5rem;
+  }
+
+  .leaderboard-section {
+    padding: 1rem;
+  }
+}

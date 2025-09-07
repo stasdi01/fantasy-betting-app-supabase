@@ -1,0 +1,282 @@
+.leaderboard-card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.leaderboard-card:hover {
+  transform: translateX(5px);
+  border-color: #22d3ee;
+  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.2);
+}
+
+/* Special styles for top 3 */
+.leaderboard-card.gold {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.1),
+    rgba(245, 158, 11, 0.05)
+  );
+  border-color: #fbbf24;
+}
+
+.leaderboard-card.silver {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 163, 175, 0.1),
+    rgba(107, 114, 128, 0.05)
+  );
+  border-color: #9ca3af;
+}
+
+.leaderboard-card.bronze {
+  background: linear-gradient(
+    135deg,
+    rgba(217, 119, 6, 0.1),
+    rgba(180, 83, 9, 0.05)
+  );
+  border-color: #d97706;
+}
+
+.leaderboard-card.current-user {
+  border: 2px solid #22d3ee;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 211, 238, 0.1),
+    rgba(8, 145, 178, 0.05)
+  );
+}
+
+/* Card Main */
+.card-main {
+  display: grid;
+  grid-template-columns: 100px 1fr auto 60px;
+  align-items: center;
+  padding: 1.25rem;
+  cursor: pointer;
+  gap: 1.5rem;
+}
+
+/* Rank Section */
+.rank-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rank-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.leaderboard-card.gold .rank-number {
+  color: #fbbf24;
+}
+
+.leaderboard-card.silver .rank-number {
+  color: #9ca3af;
+}
+
+.leaderboard-card.bronze .rank-number {
+  color: #d97706;
+}
+
+.rank-medal {
+  font-size: 1.5rem;
+}
+
+/* Player Section */
+.player-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.player-avatar {
+  font-size: 1.5rem;
+}
+
+.player-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.player-country {
+  font-size: 1.2rem;
+}
+
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.streak.positive {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.streak.negative {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+/* Stats Section */
+.stats-section {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.stat-value.positive {
+  color: #10b981;
+}
+
+.stat-value.negative {
+  color: #dc2626;
+}
+
+/* Winrate Display */
+.winrate-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.winrate-bar {
+  width: 60px;
+  height: 6px;
+  background: #334155;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.winrate-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #0891b2);
+}
+
+.winrate-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #22d3ee;
+}
+
+/* Expand Button */
+.expand-button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s;
+}
+
+.expand-button:hover {
+  color: #22d3ee;
+}
+
+/* Card Details */
+.card-details {
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-top: 1px solid #334155;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-item svg {
+  color: #64748b;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.detail-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.detail-value.positive {
+  color: #10b981;
+}
+
+.detail-value.negative {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-main {
+    grid-template-columns: 70px 1fr;
+    gap: 1rem;
+  }
+
+  .stats-section,
+  .expand-button {
+    display: none;
+  }
+
+  .player-section {
+    grid-column: span 1;
+  }
+}

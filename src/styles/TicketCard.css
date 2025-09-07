@@ -1,0 +1,240 @@
+.ticket-card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.ticket-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ticket-card.won {
+  border-left: 4px solid #10b981;
+}
+
+.ticket-card.lost {
+  border-left: 4px solid #dc2626;
+}
+
+.ticket-card.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+/* Ticket Header */
+.ticket-header {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ticket-header:hover {
+  background: rgba(34, 211, 238, 0.05);
+}
+
+.ticket-info {
+  flex: 1;
+}
+
+.ticket-number {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.status-icon {
+  animation: fadeIn 0.5s ease;
+}
+
+.status-icon.won {
+  color: #10b981;
+}
+
+.status-icon.lost {
+  color: #dc2626;
+}
+
+.status-icon.pending {
+  color: #f59e0b;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ticket-date {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Ticket Summary */
+.ticket-summary {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.ticket-odds,
+.ticket-stake,
+.ticket-profit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.value {
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.ticket-profit.won .value {
+  color: #10b981;
+}
+
+.ticket-profit.lost .value {
+  color: #dc2626;
+}
+
+.ticket-profit.pending .value {
+  color: #f59e0b;
+}
+
+.expand-button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.expand-button:hover {
+  color: #22d3ee;
+  transform: rotate(180deg);
+}
+
+/* Ticket Details */
+.ticket-details {
+  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid #334155;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.matches-list {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+}
+
+.match-detail {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #334155;
+}
+
+.match-detail:last-child {
+  border-bottom: none;
+}
+
+.match-teams {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.match-bet {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bet-type {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.bet-odd {
+  color: #22d3ee;
+  font-weight: 600;
+}
+
+/* Ticket Footer */
+.ticket-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #334155;
+}
+
+.potential-win,
+.actual-win,
+.actual-loss {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.win-amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #22d3ee;
+}
+
+.win-amount.green {
+  color: #10b981;
+}
+
+.loss-amount.red {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ticket-summary {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .ticket-odds,
+  .ticket-stake,
+  .ticket-profit {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+}

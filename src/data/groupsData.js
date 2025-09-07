@@ -1,0 +1,96 @@
+// Mock korisnici za simulaciju
+export const mockUsers = [
+  {
+    id: 1,
+    username: "Marko_Kralj",
+    totalProfit: 145.5,
+    winRate: 68,
+    totalBets: 45,
+    avatar: "👑",
+  },
+  {
+    id: 2,
+    username: "Ana_987",
+    totalProfit: 89.2,
+    winRate: 55,
+    totalBets: 32,
+    avatar: "🎯",
+  },
+  {
+    id: 3,
+    username: "Stefan_Bet",
+    totalProfit: -23.4,
+    winRate: 42,
+    totalBets: 28,
+    avatar: "⚽",
+  },
+  {
+    id: 4,
+    username: "Milica_Lucky",
+    totalProfit: 201.8,
+    winRate: 71,
+    totalBets: 61,
+    avatar: "🍀",
+  },
+  {
+    id: 5,
+    username: "Petar_Pro",
+    totalProfit: 56.3,
+    winRate: 52,
+    totalBets: 39,
+    avatar: "💪",
+  },
+  {
+    id: 6,
+    username: "Jelena_Win",
+    totalProfit: 178.9,
+    winRate: 64,
+    totalBets: 54,
+    avatar: "🌟",
+  },
+  {
+    id: 7,
+    username: "Nikola_Ace",
+    totalProfit: -45.6,
+    winRate: 38,
+    totalBets: 22,
+    avatar: "🎲",
+  },
+];
+
+// Mock grupe
+export const mockGroups = [
+  {
+    id: 1,
+    name: "Weekend Warriors",
+    description: "Vikend kladionica ekipa",
+    memberCount: 5,
+    created: "2024-11-15",
+    isJoined: true,
+    members: [
+      mockUsers[0],
+      mockUsers[1],
+      mockUsers[2],
+      mockUsers[3],
+      mockUsers[4],
+    ],
+  },
+  {
+    id: 2,
+    name: "Premier League Fans",
+    description: "Samo Premier Liga",
+    memberCount: 3,
+    created: "2024-10-20",
+    isJoined: true,
+    members: [mockUsers[1], mockUsers[5], mockUsers[6]],
+  },
+  {
+    id: 3,
+    name: "High Rollers",
+    description: "Za one koji se ne plaše rizika",
+    memberCount: 7,
+    created: "2024-09-10",
+    isJoined: false,
+    members: mockUsers,
+  },
+];
