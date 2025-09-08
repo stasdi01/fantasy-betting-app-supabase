@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, TrendingUp, Trophy, Users, LogOut } from "lucide-react";
+import { calculateBalance } from "../utils/budgetUtils";
 import "../styles/Layout.css";
 
 const Layout = ({ children, currentUser, onLogout }) => {
   const location = useLocation();
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    // Ažuriraj balans kada se promeni stranica
+    const updateBalance = () => {
+      const currentBalance = calculateBalance();
+      setBalance(currentBalance);
+    };
+
+    updateBalance();
+
+    // Slušaj za custom event kada se balans promeni
+    window.addEventListener("balanceUpdated", updateBalance);
+
+    return () => {
+      window.removeEventListener("balanceUpdated", updateBalance);
+    };
+  }, [location]);
 
   const navItems = [
     { path: "/matches", icon: Home, label: "Matches" },
@@ -12,6 +31,24 @@ const Layout = ({ children, currentUser, onLogout }) => {
     { path: "/groups", icon: Users, label: "Groups" },
     { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   ];
+
+  // Formatiranje balansa sa bojom
+  const getBalanceDisplay = () => {
+    const balancePercent = balance.toFixed(1);
+    const isNegative = balance < 0;
+    const isBlocked = balance <= -100;
+
+    return (
+      <span
+        className={`user-balance ${isNegative ? "negative" : "positive"} ${
+          isBlocked ? "blocked" : ""
+        }`}
+      >
+        Balance: {isNegative ? "" : "+"}
+        {balancePercent}%
+      </span>
+    );
+  };
 
   return (
     <div className="app-layout">
@@ -21,7 +58,7 @@ const Layout = ({ children, currentUser, onLogout }) => {
           <h1>BETIFY</h1>
         </div>
         <div className="header-right">
-          <span className="user-balance">Balance: 100%</span>
+          {getBalanceDisplay()}
           <span className="user-name">{currentUser}</span>
           <button onClick={onLogout} className="logout-btn">
             <LogOut size={18} />

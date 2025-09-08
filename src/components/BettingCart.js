@@ -1,11 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Trash2, ShoppingCart } from "lucide-react";
+import {
+  calculateBalance,
+  canPlaceBet,
+  getCurrentMonthKey,
+  getMaxStake,
+} from "../utils/budgetUtils";
 import "../styles/BettingCart.css";
 
 const BettingCart = ({ cartItems, setCartItems }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [stake, setStake] = useState(10); // Default 10%
-  const [userBalance] = useState(100); // Kasnije ćemo ovo čuvati u state-u
+  const [maxAllowedStake, setMaxAllowedStake] = useState(100);
+  const [currentBalance, setCurrentBalance] = useState(0);
+
+  useEffect(() => {
+    // Ažuriraj maksimalni dozvoljeni ulog kada se promeni balans
+    const updateMaxStake = () => {
+      const maxStake = getMaxStake();
+      setMaxAllowedStake(maxStake);
+      setCurrentBalance(calculateBalance());
+
+      // Ako je trenutni stake veći od dozvoljenog, smanji ga
+      if (stake > maxStake) {
+        setStake(Math.min(10, maxStake));
+      }
+    };
+
+    updateMaxStake();
+    window.addEventListener("balanceUpdated", updateMaxStake);
+
+    return () => {
+      window.removeEventListener("balanceUpdated", updateMaxStake);
+    };
+  }, [stake]);
 
   // Ukloni utakmicu iz tiketa
   const removeFromCart = (itemId) => {
@@ -29,18 +57,31 @@ const BettingCart = ({ cartItems, setCartItems }) => {
       return;
     }
 
+    // Proveri da li korisnik može da se kladi
+    if (!canPlaceBet()) {
+      alert(
+        "You've reached the monthly limit of -100%. You cannot place more bets this month."
+      );
+      return;
+    }
+
+    // Proveri da li stake prelazi dozvoljeni limit
+    if (stake > maxAllowedStake) {
+      alert(
+        `Maximum stake allowed is ${maxAllowedStake.toFixed(
+          1
+        )}% based on your current balance.`
+      );
+      return;
+    }
+
     // Dodatna validacija za stake
-    if (stake < 1 || stake > 100) {
-      alert("Stake must be between 1% and 100%!");
+    if (stake < 1) {
+      alert("Minimum stake is 1%!");
       return;
     }
 
-    if (stake > userBalance) {
-      alert("Insufficient balance!");
-      return;
-    }
-
-    // Generiši status tiketa JEDNOM pri kreiranju
+    // Generiši status tiketa
     const generateTicketStatus = () => {
       const random = Math.random();
       if (random < 0.4) return "won";
@@ -48,41 +89,64 @@ const BettingCart = ({ cartItems, setCartItems }) => {
       return "pending";
     };
 
+    const currentMonth = getCurrentMonthKey();
+    const ticketStatus = generateTicketStatus();
+
     const betData = {
-      id: Date.now(), // Dodaj jedinstveni ID
+      id: Date.now(),
       matches: cartItems,
       totalOdds: getTotalOdds().toFixed(2),
       stake: stake,
       potentialWin: (stake * getTotalOdds()).toFixed(2),
       date: new Date().toISOString(),
-      status: generateTicketStatus(), // Dodaj status OVDE, samo jednom!
+      status: ticketStatus,
+      month: currentMonth,
     };
 
-    console.log("Bet placed:", betData);
+    // Ažuriraj mesečni budžet
+    const monthData = JSON.parse(
+      localStorage.getItem(`month_${currentMonth}`)
+    ) || {
+      startBalance: 0,
+      currentBalance: 0,
+      tickets: [],
+    };
 
-    // Izračunaj profit/gubitak na osnovu statusa
-    let message = `Bet placed successfully!\nStake: ${stake}%\nPotential win: ${betData.potentialWin}%`;
+    // Dodaj tiket u mesečne podatke
+    monthData.tickets.push(betData);
 
-    // Ako želiš, možeš odmah reći korisniku da li je dobio
-    // ali ovo je opciono - možda je bolje da sačeka da vidi na Profit stranici
-    /*
-  if (betData.status === 'won') {
-    message += `\n\n🎉 Congratulations! You won ${betData.potentialWin}%!`;
-  } else if (betData.status === 'lost') {
-    message += `\n\n😔 Unfortunately, you lost this bet.`;
-  }
-  */
+    // Odmah oduzmi ulog od balansa
+    monthData.currentBalance -= parseFloat(stake);
 
-    alert(message);
+    // Ako je tiket odmah dobitan, dodaj dobitak
+    if (ticketStatus === "won") {
+      monthData.currentBalance += parseFloat(betData.potentialWin);
+    }
 
-    // Sačuvaj tiket u localStorage
+    localStorage.setItem(`month_${currentMonth}`, JSON.stringify(monthData));
+
+    // Sačuvaj i u stari sistem
     const existingBets = JSON.parse(localStorage.getItem("userBets") || "[]");
     existingBets.push(betData);
     localStorage.setItem("userBets", JSON.stringify(existingBets));
 
-    // Očisti tiket nakon klađenja
+    // Triggeruj event da se ažurira balans
+    window.dispatchEvent(new Event("balanceUpdated"));
+
+    let message = `Bet placed successfully!\nStake: ${stake}%\nPotential win: ${betData.potentialWin}%`;
+
+    if (betData.status === "won") {
+      message += `\n\n🎉 Congratulations! You won ${betData.potentialWin}%!`;
+    } else if (betData.status === "lost") {
+      message += `\n\n😔 Unfortunately, you lost this bet.`;
+    }
+
+    alert(message);
+
+    // Očisti tiket
     clearCart();
-    setStake(10);
+    setStake(Math.min(10, getMaxStake()));
+    setIsOpen(false);
   };
 
   const getBetTypeLabel = (betType, match) => {
@@ -160,13 +224,13 @@ const BettingCart = ({ cartItems, setCartItems }) => {
               <input
                 type="number"
                 min="1"
-                max="100"
+                max={maxAllowedStake}
                 value={stake}
                 onChange={(e) => {
                   let value = Number(e.target.value);
-                  // Ograniči između 1 i 100
+                  // Ograniči između 1 i maksimalno dozvoljenog
                   if (value < 1) value = 1;
-                  if (value > 100) value = 100;
+                  if (value > maxAllowedStake) value = maxAllowedStake;
                   setStake(value);
                 }}
               />
@@ -174,27 +238,40 @@ const BettingCart = ({ cartItems, setCartItems }) => {
             </div>
             <small
               style={{
-                color: "#64748b",
+                color: maxAllowedStake < 10 ? "#ef4444" : "#64748b",
                 fontSize: "0.75rem",
                 marginTop: "0.25rem",
                 display: "block",
               }}
             >
-              Min: 1% | Max: 100% | Available: {userBalance}%
+              Max allowed: {maxAllowedStake.toFixed(1)}% | Current balance:{" "}
+              {currentBalance.toFixed(1)}%
             </small>
           </div>
+
           <div className="potential-win">
             <span>Potential Win:</span>
             <span className="win-value">
               {(stake * getTotalOdds()).toFixed(2)}%
             </span>
           </div>
-          <button className="place-bet-button" onClick={handlePlaceBet}>
-            Place Bet
-          </button>
-          <button className="clear-button" onClick={clearCart}>
-            Clear Ticket
-          </button>
+
+          {maxAllowedStake === 0 ? (
+            <div
+              style={{ color: "#ef4444", textAlign: "center", padding: "1rem" }}
+            >
+              Monthly limit reached (-100%)
+            </div>
+          ) : (
+            <>
+              <button className="place-bet-button" onClick={handlePlaceBet}>
+                Place Bet
+              </button>
+              <button className="clear-button" onClick={clearCart}>
+                Clear Ticket
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

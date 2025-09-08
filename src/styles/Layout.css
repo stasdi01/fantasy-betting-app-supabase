@@ -143,3 +143,38 @@
     border-bottom-color: #22d3ee;
   }
 }
+
+/* Balance stilovi */
+.user-balance {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.user-balance.positive {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.user-balance.negative {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.user-balance.blocked {
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
