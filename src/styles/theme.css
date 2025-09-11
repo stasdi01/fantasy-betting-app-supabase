@@ -1,0 +1,45 @@
+:root {
+  /* Primarne boje - ljubičasta paleta */
+  --primary-color: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --primary-lighter: #c4b5fd;
+  --primary-glow: rgba(139, 92, 246, 0.4);
+
+  /* Pozadinske boje - crna/tamno siva */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #18181b;
+  --bg-card: #27272a;
+  --bg-hover: #3f3f46;
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+
+  /* Tekst boje */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  /* Status boje */
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #0ea5e9;
+
+  /* Zlatna za trofeje (zadržavamo) */
+  --gold: #fbbf24;
+  --gold-dark: #f59e0b;
+  --silver: #9ca3af;
+  --bronze: #d97706;
+
+  /* Borderi */
+  --border-color: #3f3f46;
+  --border-hover: #8b5cf6;
+}
+
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}

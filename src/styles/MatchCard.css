@@ -1,6 +1,6 @@
 .match-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 1px solid #475569;
+  background: linear-gradient(135deg, #18181b 0%, #18181b 100%);
+  border: 1px solid #8b5cf6;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -9,9 +9,9 @@
 }
 
 .match-card:hover {
-  border-color: #22d3ee;
+  border-color: #7c3aed;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.15);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
 }
 
 /* Header Section */
@@ -21,12 +21,12 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #475569;
+  border-bottom: 1px solid #71717a;
 }
 
 .league {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #fafafa;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -84,7 +84,7 @@
 .team-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #fafafa;
   line-height: 1.3;
 }
 
@@ -109,8 +109,8 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.75rem 0.5rem;
-  background: rgba(34, 211, 238, 0.1);
-  border: 1px solid #22d3ee;
+  background: #24242c;
+  border: 1px solid #0a0a0a;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -119,9 +119,9 @@
 }
 
 .odd-button:hover {
-  background: rgba(34, 211, 238, 0.2);
+  background: rgba(124, 92, 246, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
+  box-shadow: 0 4px 12px rgba(124, 92, 246, 0.4);
 }
 
 .odd-button:active {
@@ -130,13 +130,13 @@
 
 .odd-label {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #71717a;
   font-weight: 500;
 }
 
 .odd-value {
   font-size: 1.1rem;
-  color: #22d3ee;
+  color: #fafafa;
   font-weight: 700;
 }
 
@@ -174,10 +174,10 @@
 
 /* Selected Odd Button Style */
 .odd-button.selected {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-color: #10b981;
+  background: linear-gradient(135deg, #8b5cf6 0%, #8b5cf6 100%);
+  border-color: #8b5cf6;
   transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
 }
 
 .odd-button.selected .odd-label {
@@ -190,7 +190,7 @@
 }
 
 .odd-button.selected:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  border-color: #dc2626;
-  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #8b5cf6 0%, #8b5cf6 100%);
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
 }
