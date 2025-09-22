@@ -50,11 +50,11 @@
   align-items: flex-start;
   padding: 2rem;
   background: linear-gradient(135deg, #334155 0%, #475569 100%);
-  border-bottom: 2px solid #22d3ee;
+  border-bottom: 2px solid var(--primary-color);
 }
 
 .modal-header h2 {
-  color: #22d3ee;
+  color: var(--primary-color);
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
 }
@@ -83,7 +83,7 @@
 }
 
 .leaderboard-section h3 {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-size: 1.3rem;
   margin-bottom: 1.5rem;
   display: flex;
@@ -100,7 +100,7 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -126,7 +126,7 @@
 
 .leaderboard-item:hover {
   background: rgba(34, 211, 238, 0.1);
-  border-color: #22d3ee;
+  border-color: var(--primary-color);
   transform: translateX(5px);
 }
 
@@ -181,7 +181,7 @@
 }
 
 .player-name {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -217,7 +217,7 @@
 
 .winrate-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22d3ee, #0891b2);
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
   transition: width 0.5s ease;
 }
 
@@ -265,13 +265,13 @@
 }
 
 .invite-button {
-  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
 }
 
 .invite-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.4);
+  box-shadow: 0 4px 20px var(--primary-glow);
 }
 
 /* Responsive */

@@ -238,7 +238,7 @@ const BettingCart = ({ cartItems, setCartItems }) => {
             </div>
             <small
               style={{
-                color: maxAllowedStake < 10 ? "#ef4444" : "#64748b",
+                color: maxAllowedStake < 10 ? "var(--danger)" : "var(--text-muted)",
                 fontSize: "0.75rem",
                 marginTop: "0.25rem",
                 display: "block",

@@ -10,8 +10,8 @@
 
 .group-card:hover {
   transform: translateY(-2px);
-  border-color: #22d3ee;
-  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 20px var(--primary-glow);
 }
 
 .group-card.joined {
@@ -46,7 +46,7 @@
 }
 
 .group-info h3 {
-  color: #22d3ee;
+  color: var(--primary-color);
   font-size: 1.3rem;
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -61,10 +61,10 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  background: rgba(34, 211, 238, 0.1);
+  background: var(--primary-glow);
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
-  border: 1px solid #22d3ee;
+  border: 1px solid var(--primary-color);
 }
 
 .user-rank svg {
@@ -72,7 +72,7 @@
 }
 
 .user-rank span {
-  color: #22d3ee;
+  color: var(--primary-color);
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -120,13 +120,13 @@
 }
 
 .view-button {
-  background: rgba(34, 211, 238, 0.1);
-  color: #22d3ee;
-  border: 1px solid #22d3ee;
+  background: var(--primary-glow);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
 }
 
 .view-button:hover {
-  background: #22d3ee;
+  background: var(--primary-color);
   color: #0f172a;
   transform: translateX(2px);
 }

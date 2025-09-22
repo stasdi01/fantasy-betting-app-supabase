@@ -20,7 +20,7 @@
 
 .header-content h1 {
   font-size: 2rem;
-  color: #22d3ee;
+  color: var(--primary-color);
   margin-bottom: 0.5rem;
   font-weight: 700;
 }
@@ -84,9 +84,9 @@
 }
 
 .filter-btn.active {
-  background: rgba(34, 211, 238, 0.1);
-  border-color: #22d3ee;
-  color: #22d3ee;
+  background: var(--primary-glow);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .leaderboard-list {
@@ -106,7 +106,7 @@
 }
 
 .period-badge {
-  background: linear-gradient(135deg, #22d3ee, #0891b2);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;

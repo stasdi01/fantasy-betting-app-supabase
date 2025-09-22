@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
 }
 
 .auth-card {
@@ -42,17 +42,23 @@
   width: 100%;
   padding: 12px;
   margin-top: 1rem;
-  background: #4f46e5;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px var(--primary-glow);
+  border: 2px solid transparent;
 }
 
 .auth-card button:hover {
-  background: #3730a3;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-lighter));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+  border-color: var(--primary-lighter);
 }
 
 .auth-card p {
@@ -62,7 +68,16 @@
 }
 
 .auth-card span {
-  color: #60a5fa;
+  color: var(--primary-lighter);
   cursor: pointer;
   text-decoration: underline;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-shadow: 0 0 8px var(--primary-glow);
+}
+
+.auth-card span:hover {
+  color: white;
+  text-shadow: 0 0 12px var(--primary-glow);
+  transform: scale(1.05);
 }

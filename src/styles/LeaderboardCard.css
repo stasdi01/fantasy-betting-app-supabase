@@ -9,8 +9,8 @@
 
 .leaderboard-card:hover {
   transform: translateX(5px);
-  border-color: #22d3ee;
-  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 20px var(--primary-glow);
 }
 
 /* Special styles for top 3 */
@@ -42,7 +42,7 @@
 }
 
 .leaderboard-card.current-user {
-  border: 2px solid #22d3ee;
+  border: 2px solid var(--primary-color);
   background: linear-gradient(
     135deg,
     rgba(34, 211, 238, 0.1),
@@ -109,7 +109,7 @@
 .player-name {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .player-country {
@@ -132,8 +132,8 @@
 }
 
 .streak.negative {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: var(--primary-glow);
+  color: var(--primary-light);
 }
 
 /* Stats Section */
@@ -151,7 +151,7 @@
 
 .stat-label {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -159,7 +159,7 @@
 .stat-value {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .stat-value.positive {
@@ -187,13 +187,13 @@
 
 .winrate-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22d3ee, #0891b2);
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
 }
 
 .winrate-text {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #22d3ee;
+  color: var(--primary-color);
 }
 
 /* Expand Button */
@@ -207,7 +207,7 @@
 }
 
 .expand-button:hover {
-  color: #22d3ee;
+  color: var(--primary-color);
 }
 
 /* Card Details */
@@ -242,7 +242,7 @@
 }
 
 .detail-item svg {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .detail-label {
@@ -253,7 +253,7 @@
 .detail-value {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .detail-value.positive {

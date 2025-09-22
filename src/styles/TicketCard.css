@@ -35,7 +35,7 @@
 }
 
 .ticket-header:hover {
-  background: rgba(34, 211, 238, 0.05);
+  background: var(--primary-glow);
 }
 
 .ticket-info {
@@ -48,7 +48,7 @@
   gap: 0.5rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -98,13 +98,13 @@
 }
 
 .label {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.85rem;
   margin-bottom: 0.25rem;
 }
 
 .value {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -131,7 +131,7 @@
 }
 
 .expand-button:hover {
-  color: #22d3ee;
+  color: var(--primary-color);
   transform: rotate(180deg);
 }
 
@@ -182,12 +182,12 @@
 }
 
 .bet-type {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .bet-odd {
-  color: #22d3ee;
+  color: var(--primary-color);
   font-weight: 600;
 }
 
@@ -212,7 +212,7 @@
 .win-amount {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #22d3ee;
+  color: var(--primary-color);
 }
 
 .win-amount.green {
