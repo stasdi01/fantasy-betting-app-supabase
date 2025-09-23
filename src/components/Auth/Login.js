@@ -1,23 +1,49 @@
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import "../../styles/Auth.css";
 
-const Login = ({ onLogin, switchToRegister }) => {
+const Login = ({ switchToRegister }) => {
+  const { signIn } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.username && formData.password) {
-      onLogin(formData.username);
+    if (!formData.username || !formData.password) {
+      setError("Please fill in all fields");
+      return;
     }
+
+    setLoading(true);
+    setError("");
+
+    const { error: signInError } = await signIn(formData.username, formData.password);
+
+    if (signInError) {
+      setError(signInError.message);
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h2>Log In</h2>
+        {error && (
+          <div style={{
+            color: 'var(--danger)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -27,6 +53,7 @@ const Login = ({ onLogin, switchToRegister }) => {
               setFormData({ ...formData, username: e.target.value })
             }
             required
+            disabled={loading}
           />
           <input
             type="password"
@@ -36,8 +63,11 @@ const Login = ({ onLogin, switchToRegister }) => {
               setFormData({ ...formData, password: e.target.value })
             }
             required
+            disabled={loading}
           />
-          <button type="submit">Log In</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Log In"}
+          </button>
         </form>
         <p>
           Don't have an account?

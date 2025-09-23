@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Trophy, Filter, TrendingUp, Medal, Crown } from "lucide-react";
+import { Trophy, TrendingUp, Medal, Crown } from "lucide-react";
 import LeaderboardCard from "../components/Leaderboard/LeaderboardCard";
 import {
   globalLeaderboardData,
@@ -10,7 +10,7 @@ import "../styles/Leaderboard.css";
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [filterPeriod, setFilterPeriod] = useState("all"); // all, today, week, month
-  const [showCurrentUser, setShowCurrentUser] = useState(true);
+  const [showCurrentUser] = useState(true);
 
   useEffect(() => {
     // Sortiraj po odgovarajućem periodu
@@ -46,62 +46,71 @@ const Leaderboard = () => {
         <div className="header-content">
           <div className="header-title">
             <Crown size={32} className="crown-icon" />
+            <div className="header-text"></div>
             <h1>Global Leaderboard</h1>
             <p>Compete with the best players worldwide</p>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="stats-cards">
-          <div className="stat-card">
-            <Trophy size={24} />
-            <div className="stat-info">
-              <span className="stat-label">Total Players</span>
-              <span className="stat-value">1,234</span>
+        <div className="stats-and-filters">
+          {/* Stats Cards */}
+          <div className="stats-cards">
+            <div className="stat-card">
+              <Trophy size={24} />
+              <div className="stat-info">
+                <span className="stat-label">Total Players</span>
+                <span className="stat-value">1,234</span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <TrendingUp size={24} />
+              <div className="stat-info">
+                <span className="stat-label">Avg. Win Rate</span>
+                <span className="stat-value">58.3%</span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <Medal size={24} />
+              <div className="stat-info">
+                <span className="stat-label">Your Rank</span>
+                <span className="stat-value">#{currentUserStats.rank}</span>
+              </div>
             </div>
           </div>
-          <div className="stat-card">
-            <TrendingUp size={24} />
-            <div className="stat-info">
-              <span className="stat-label">Avg. Win Rate</span>
-              <span className="stat-value">58.3%</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <Medal size={24} />
-            <div className="stat-info">
-              <span className="stat-label">Your Rank</span>
-              <span className="stat-value">#{currentUserStats.rank}</span>
-            </div>
-          </div>
-        </div>
 
-        {/* Filter Buttons */}
-        <div className="filter-section">
-          <button
-            className={`filter-btn ${filterPeriod === "all" ? "active" : ""}`}
-            onClick={() => setFilterPeriod("all")}
-          >
-            All Time
-          </button>
-          <button
-            className={`filter-btn ${filterPeriod === "month" ? "active" : ""}`}
-            onClick={() => setFilterPeriod("month")}
-          >
-            This Month
-          </button>
-          <button
-            className={`filter-btn ${filterPeriod === "week" ? "active" : ""}`}
-            onClick={() => setFilterPeriod("week")}
-          >
-            This Week
-          </button>
-          <button
-            className={`filter-btn ${filterPeriod === "today" ? "active" : ""}`}
-            onClick={() => setFilterPeriod("today")}
-          >
-            Today
-          </button>
+          {/* Filter Buttons */}
+          <div className="filter-section">
+            <button
+              className={`filter-btn ${filterPeriod === "all" ? "active" : ""}`}
+              onClick={() => setFilterPeriod("all")}
+            >
+              All Time
+            </button>
+            <button
+              className={`filter-btn ${
+                filterPeriod === "month" ? "active" : ""
+              }`}
+              onClick={() => setFilterPeriod("month")}
+            >
+              This Month
+            </button>
+            <button
+              className={`filter-btn ${
+                filterPeriod === "week" ? "active" : ""
+              }`}
+              onClick={() => setFilterPeriod("week")}
+            >
+              This Week
+            </button>
+            <button
+              className={`filter-btn ${
+                filterPeriod === "today" ? "active" : ""
+              }`}
+              onClick={() => setFilterPeriod("today")}
+            >
+              Today
+            </button>
+          </div>
         </div>
       </div>
 

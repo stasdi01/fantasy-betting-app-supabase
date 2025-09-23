@@ -1,39 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { X, Trash2, ShoppingCart } from "lucide-react";
-import {
-  calculateBalance,
-  canPlaceBet,
-  getCurrentMonthKey,
-  getMaxStake,
-} from "../utils/budgetUtils";
+import { useBudget } from "../hooks/useBudget";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import "../styles/BettingCart.css";
 
 const BettingCart = ({ cartItems, setCartItems }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [stake, setStake] = useState(10); // Default 10%
-  const [maxAllowedStake, setMaxAllowedStake] = useState(100);
-  const [currentBalance, setCurrentBalance] = useState(0);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isPremiumBet, setIsPremiumBet] = useState(false);
+
+  const { user, isPremium } = useAuth();
+  const {
+    freeProfit,
+    premiumProfit,
+    getAvailableBudget,
+    canPlaceTicket,
+    updateProfit
+  } = useBudget();
+
+  const availableBudget = getAvailableBudget(isPremiumBet);
+  const currentProfit = isPremiumBet ? premiumProfit : freeProfit;
 
   useEffect(() => {
-    // Ažuriraj maksimalni dozvoljeni ulog kada se promeni balans
-    const updateMaxStake = () => {
-      const maxStake = getMaxStake();
-      setMaxAllowedStake(maxStake);
-      setCurrentBalance(calculateBalance());
+    // Ako je trenutni stake veći od dostupnog budžeta, smanji ga
+    if (stake > availableBudget) {
+      setStake(Math.min(10, availableBudget));
+    }
 
-      // Ako je trenutni stake veći od dozvoljenog, smanji ga
-      if (stake > maxStake) {
-        setStake(Math.min(10, maxStake));
-      }
-    };
-
-    updateMaxStake();
-    window.addEventListener("balanceUpdated", updateMaxStake);
-
-    return () => {
-      window.removeEventListener("balanceUpdated", updateMaxStake);
-    };
-  }, [stake]);
+    // Očisti error ako je korisnik ponovo omogućen
+    if (availableBudget > 0) {
+      setError("");
+    }
+  }, [stake, availableBudget]);
 
   // Ukloni utakmicu iz tiketa
   const removeFromCart = (itemId) => {
@@ -51,27 +52,17 @@ const BettingCart = ({ cartItems, setCartItems }) => {
     return cartItems.reduce((total, item) => total * item.oddValue, 1);
   };
 
-  const handlePlaceBet = () => {
+  const handlePlaceBet = async () => {
     if (cartItems.length === 0) {
       alert("Your ticket is empty!");
       return;
     }
 
-    // Proveri da li korisnik može da se kladi
-    if (!canPlaceBet()) {
-      alert(
-        "You've reached the monthly limit of -100%. You cannot place more bets this month."
-      );
-      return;
-    }
-
-    // Proveri da li stake prelazi dozvoljeni limit
-    if (stake > maxAllowedStake) {
-      alert(
-        `Maximum stake allowed is ${maxAllowedStake.toFixed(
-          1
-        )}% based on your current balance.`
-      );
+    // Koristi novi sistem validacije
+    const validation = canPlaceTicket(stake, isPremiumBet);
+    if (!validation.canPlace) {
+      alert(validation.reason);
+      setError(validation.reason);
       return;
     }
 
@@ -81,72 +72,73 @@ const BettingCart = ({ cartItems, setCartItems }) => {
       return;
     }
 
-    // Generiši status tiketa
-    const generateTicketStatus = () => {
-      const random = Math.random();
-      if (random < 0.4) return "won";
-      if (random < 0.7) return "lost";
-      return "pending";
-    };
+    setLoading(true);
+    setError("");
 
-    const currentMonth = getCurrentMonthKey();
-    const ticketStatus = generateTicketStatus();
+    try {
+      // Generiši status tiketa
+      const generateTicketStatus = () => {
+        const random = Math.random();
+        if (random < 0.4) return "won";
+        if (random < 0.7) return "lost";
+        return "pending";
+      };
 
-    const betData = {
-      id: Date.now(),
-      matches: cartItems,
-      totalOdds: getTotalOdds().toFixed(2),
-      stake: stake,
-      potentialWin: (stake * getTotalOdds()).toFixed(2),
-      date: new Date().toISOString(),
-      status: ticketStatus,
-      month: currentMonth,
-    };
+      const ticketStatus = generateTicketStatus();
+      const stakeAmount = parseFloat(stake);
+      const potentialWinAmount = Math.round(stakeAmount * getTotalOdds() * 100) / 100;
 
-    // Ažuriraj mesečni budžet
-    const monthData = JSON.parse(
-      localStorage.getItem(`month_${currentMonth}`)
-    ) || {
-      startBalance: 0,
-      currentBalance: 0,
-      tickets: [],
-    };
+      const betData = {
+        user_id: user.id,
+        match_data: cartItems,
+        total_odds: getTotalOdds(),
+        stake_amount: stakeAmount,
+        potential_win: potentialWinAmount,
+        status: ticketStatus,
+        is_premium_bet: isPremiumBet,
+        month_year: new Date().toISOString().slice(0, 7), // YYYY-MM format
+      };
 
-    // Dodaj tiket u mesečne podatke
-    monthData.tickets.push(betData);
+      // Save bet to database
+      const { error: betError } = await supabase
+        .from('bets')
+        .insert([betData]);
 
-    // Odmah oduzmi ulog od balansa
-    monthData.currentBalance -= parseFloat(stake);
+      if (betError) {
+        throw betError;
+      }
 
-    // Ako je tiket odmah dobitan, dodaj dobitak
-    if (ticketStatus === "won") {
-      monthData.currentBalance += parseFloat(betData.potentialWin);
+      // Update profit if bet is settled
+      if (ticketStatus === "won") {
+        await updateProfit(stakeAmount, potentialWinAmount, true, isPremiumBet);
+      } else if (ticketStatus === "lost") {
+        await updateProfit(stakeAmount, potentialWinAmount, false, isPremiumBet);
+      }
+
+      // Trigger global profit update event
+      window.dispatchEvent(new CustomEvent('profit-updated'));
+
+      let message = `Bet placed successfully!\nStake: ${stake}%\nPotential win: ${potentialWinAmount.toFixed(2)}%`;
+
+      if (ticketStatus === "won") {
+        message += `\n\n🎉 Congratulations! You won ${potentialWinAmount.toFixed(2)}%!`;
+      } else if (ticketStatus === "lost") {
+        message += `\n\n😔 Unfortunately, you lost this bet.`;
+      }
+
+      alert(message);
+
+      // Clear cart
+      clearCart();
+      setStake(Math.min(10, getAvailableBudget(isPremiumBet)));
+      setIsOpen(false);
+
+    } catch (error) {
+      console.error('Error placing bet:', error);
+      setError('Failed to place bet. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem(`month_${currentMonth}`, JSON.stringify(monthData));
-
-    // Sačuvaj i u stari sistem
-    const existingBets = JSON.parse(localStorage.getItem("userBets") || "[]");
-    existingBets.push(betData);
-    localStorage.setItem("userBets", JSON.stringify(existingBets));
-
-    // Triggeruj event da se ažurira balans
-    window.dispatchEvent(new Event("balanceUpdated"));
-
-    let message = `Bet placed successfully!\nStake: ${stake}%\nPotential win: ${betData.potentialWin}%`;
-
-    if (betData.status === "won") {
-      message += `\n\n🎉 Congratulations! You won ${betData.potentialWin}%!`;
-    } else if (betData.status === "lost") {
-      message += `\n\n😔 Unfortunately, you lost this bet.`;
-    }
-
-    alert(message);
-
-    // Očisti tiket
-    clearCart();
-    setStake(Math.min(10, getMaxStake()));
-    setIsOpen(false);
   };
 
   const getBetTypeLabel = (betType, match) => {
@@ -218,35 +210,66 @@ const BettingCart = ({ cartItems, setCartItems }) => {
             <span className="odds-value">{getTotalOdds().toFixed(2)}</span>
           </div>
 
+          {/* Premium Bet Toggle */}
+          {isPremium && (
+            <div className="premium-bet-toggle" style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={isPremiumBet}
+                  onChange={(e) => {
+                    setIsPremiumBet(e.target.checked);
+                    // Reset stake when switching budget type
+                    const newBudget = getAvailableBudget(e.target.checked);
+                    if (stake > newBudget) {
+                      setStake(Math.min(10, newBudget));
+                    }
+                  }}
+                />
+                <span style={{ color: 'var(--primary-light)', fontWeight: '600' }}>
+                  Premium Bet (100% budget)
+                </span>
+              </label>
+            </div>
+          )}
+
           <div className="stake-section">
             <label>Stake (%):</label>
             <div className="stake-input-group">
               <input
                 type="number"
                 min="1"
-                max={maxAllowedStake}
+                max={availableBudget}
                 value={stake}
                 onChange={(e) => {
                   let value = Number(e.target.value);
-                  // Ograniči između 1 i maksimalno dozvoljenog
+                  // Ograniči između 1 i dostupnog budžeta
                   if (value < 1) value = 1;
-                  if (value > maxAllowedStake) value = maxAllowedStake;
+                  if (value > availableBudget) value = availableBudget;
                   setStake(value);
                 }}
+                disabled={loading}
               />
               <span className="stake-suffix">%</span>
             </div>
             <small
               style={{
-                color: maxAllowedStake < 10 ? "var(--danger)" : "var(--text-muted)",
+                color: availableBudget < 10 ? "var(--danger)" : "var(--text-muted)",
                 fontSize: "0.75rem",
                 marginTop: "0.25rem",
                 display: "block",
               }}
             >
-              Max allowed: {maxAllowedStake.toFixed(1)}% | Current balance:{" "}
-              {currentBalance.toFixed(1)}%
+              Available budget: {availableBudget.toFixed(1)}% | Current profit:{" "}
+              <span style={{ color: currentProfit >= 0 ? "var(--success)" : "var(--danger)" }}>
+                {currentProfit >= 0 ? "+" : ""}{currentProfit.toFixed(1)}%
+              </span>
             </small>
+            {error && (
+              <small style={{ color: "var(--danger)", fontSize: "0.75rem", display: "block", marginTop: "0.25rem" }}>
+                {error}
+              </small>
+            )}
           </div>
 
           <div className="potential-win">
@@ -256,18 +279,26 @@ const BettingCart = ({ cartItems, setCartItems }) => {
             </span>
           </div>
 
-          {maxAllowedStake === 0 ? (
+          {availableBudget === 0 ? (
             <div
               style={{ color: "#ef4444", textAlign: "center", padding: "1rem" }}
             >
-              Monthly limit reached (-100%)
+              {isPremiumBet ? "Premium budget" : "Account"} blocked! Monthly limit reached (-100% profit)
             </div>
           ) : (
             <>
-              <button className="place-bet-button" onClick={handlePlaceBet}>
-                Place Bet
+              <button
+                className="place-bet-button"
+                onClick={handlePlaceBet}
+                disabled={loading}
+              >
+                {loading ? "Placing bet..." : `Place ${isPremiumBet ? "Premium " : ""}Bet`}
               </button>
-              <button className="clear-button" onClick={clearCart}>
+              <button
+                className="clear-button"
+                onClick={clearCart}
+                disabled={loading}
+              >
                 Clear Ticket
               </button>
             </>

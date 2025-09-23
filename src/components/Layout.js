@@ -1,29 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, TrendingUp, Trophy, Users, LogOut } from "lucide-react";
-import { calculateBalance } from "../utils/budgetUtils";
+import { Home, TrendingUp, Trophy, Users, LogOut, Star } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useBudget } from "../hooks/useBudget";
 import "../styles/Layout.css";
 
-const Layout = ({ children, currentUser, onLogout }) => {
+const Layout = ({ children }) => {
   const location = useLocation();
-  const [balance, setBalance] = useState(0);
-
-  useEffect(() => {
-    // Ažuriraj balans kada se promeni stranica
-    const updateBalance = () => {
-      const currentBalance = calculateBalance();
-      setBalance(currentBalance);
-    };
-
-    updateBalance();
-
-    // Slušaj za custom event kada se balans promeni
-    window.addEventListener("balanceUpdated", updateBalance);
-
-    return () => {
-      window.removeEventListener("balanceUpdated", updateBalance);
-    };
-  }, [location]);
+  const { profile, signOut, isPremium } = useAuth();
+  const { freeProfit, premiumProfit } = useBudget();
 
   const navItems = [
     { path: "/matches", icon: Home, label: "Matches" },
@@ -32,11 +17,12 @@ const Layout = ({ children, currentUser, onLogout }) => {
     { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   ];
 
-  // Formatiranje balansa sa bojom
-  const getBalanceDisplay = () => {
-    const balancePercent = balance.toFixed(1);
-    const isNegative = balance < 0;
-    const isBlocked = balance <= -100;
+  // Formatiranje profita sa bojom
+  const getProfitDisplay = () => {
+    const currentProfit = Math.round(freeProfit * 100) / 100; // Round to 2 decimal places
+    const profitPercent = currentProfit.toFixed(2);
+    const isNegative = currentProfit < 0;
+    const isBlocked = currentProfit <= -100;
 
     return (
       <span
@@ -44,8 +30,8 @@ const Layout = ({ children, currentUser, onLogout }) => {
           isBlocked ? "blocked" : ""
         }`}
       >
-        Balance: {isNegative ? "" : "+"}
-        {balancePercent}%
+        Profit: {isNegative ? "" : "+"}
+        {profitPercent}%
       </span>
     );
   };
@@ -58,9 +44,12 @@ const Layout = ({ children, currentUser, onLogout }) => {
           <h1>BETIFY</h1>
         </div>
         <div className="header-right">
-          {getBalanceDisplay()}
-          <span className="user-name">{currentUser}</span>
-          <button onClick={onLogout} className="logout-btn">
+          {getProfitDisplay()}
+          <span className="user-name">
+            {profile?.username}
+            {isPremium && <Star size={16} className="premium-star" />}
+          </span>
+          <button onClick={signOut} className="logout-btn">
             <LogOut size={18} />
             Logout
           </button>

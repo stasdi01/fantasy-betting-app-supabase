@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Trophy, TrendingUp, Target } from "lucide-react";
+import { X } from "lucide-react";
 import "../../styles/GroupDetails.css";
 
 const GroupDetails = ({ group, onClose, onLeaveGroup }) => {

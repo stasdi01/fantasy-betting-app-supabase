@@ -1,29 +1,62 @@
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import "../../styles/Auth.css";
 
-const Register = ({ onRegister, switchToLogin }) => {
+const Register = ({ switchToLogin }) => {
+  const { signUp } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords are not matching!");
+
+    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError("Please fill in all fields");
       return;
     }
-    if (formData.username && formData.email && formData.password) {
-      onRegister(formData.username);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
     }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    const { error: signUpError } = await signUp(formData.email, formData.password, formData.username);
+
+    if (signUpError) {
+      setError(signUpError.message);
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Registruj se</h2>
+        <h2>Register</h2>
+        {error && (
+          <div style={{
+            color: 'var(--danger)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -33,6 +66,7 @@ const Register = ({ onRegister, switchToLogin }) => {
               setFormData({ ...formData, username: e.target.value })
             }
             required
+            disabled={loading}
           />
           <input
             type="email"
@@ -42,15 +76,17 @@ const Register = ({ onRegister, switchToLogin }) => {
               setFormData({ ...formData, email: e.target.value })
             }
             required
+            disabled={loading}
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Password (min 6 characters)"
             value={formData.password}
             onChange={(e) =>
               setFormData({ ...formData, password: e.target.value })
             }
             required
+            disabled={loading}
           />
           <input
             type="password"
@@ -60,8 +96,11 @@ const Register = ({ onRegister, switchToLogin }) => {
               setFormData({ ...formData, confirmPassword: e.target.value })
             }
             required
+            disabled={loading}
           />
-          <button type="submit">Register</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Register"}
+          </button>
         </form>
         <p>
           Already have an account?

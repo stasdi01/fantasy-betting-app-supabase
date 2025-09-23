@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   TrendingUp,
-  TrendingDown,
   Trophy,
   Target,
   ChevronDown,

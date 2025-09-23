@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Layout from "./components/Layout";
@@ -14,46 +15,39 @@ import Groups from "./pages/Groups";
 import Leaderboard from "./pages/Leaderboard";
 import BettingCart from "./components/BettingCart";
 import "./App.css";
+import "./styles/theme.css";
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState("");
+const AppContent = () => {
+  const { isAuthenticated, loading, profile } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
-  const [cartItems, setCartItems] = useState([]); // Dodaj ovu liniju
+  const [cartItems, setCartItems] = useState([]);
 
-  const handleLogin = (username) => {
-    setCurrentUser(username);
-    setIsLoggedIn(true);
-  };
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: 'var(--bg-primary)',
+        color: 'var(--text-primary)'
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
-  const handleRegister = (username) => {
-    setCurrentUser(username);
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    setCurrentUser("");
-    setIsLoggedIn(false);
-    setCartItems([]); // Očisti cart pri logout
-  };
-
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return showRegister ? (
-      <Register
-        onRegister={handleRegister}
-        switchToLogin={() => setShowRegister(false)}
-      />
+      <Register switchToLogin={() => setShowRegister(false)} />
     ) : (
-      <Login
-        onLogin={handleLogin}
-        switchToRegister={() => setShowRegister(true)}
-      />
+      <Login switchToRegister={() => setShowRegister(true)} />
     );
   }
 
   return (
     <Router>
-      <Layout currentUser={currentUser} onLogout={handleLogout}>
+      <Layout>
         <Routes>
           <Route path="/" element={<Navigate to="/matches" replace />} />
           <Route
@@ -69,6 +63,14 @@ function App() {
       </Layout>
       <BettingCart cartItems={cartItems} setCartItems={setCartItems} />
     </Router>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

@@ -1,20 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Filter } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import TicketCard from "../components/Profit/TicketCard";
 import ProfitStats from "../components/Profit/ProfitStats";
 import "../styles/Profit.css";
 
 const Profit = () => {
+  const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [filterPeriod, setFilterPeriod] = useState("all"); // all, today, week, month
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Učitaj tikete iz localStorage
-    const savedTickets = JSON.parse(localStorage.getItem("userBets") || "[]");
-    setTickets(savedTickets);
-    setFilteredTickets(savedTickets);
-  }, []);
+    const fetchBets = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('bets')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching bets:', error);
+          return;
+        }
+
+        // Transform Supabase data to match old localStorage format
+        const transformedTickets = data.map(bet => ({
+          id: bet.id,
+          matches: bet.match_data,
+          totalOdds: bet.total_odds,
+          stake: bet.stake_amount,
+          potentialWin: bet.potential_win,
+          status: bet.status,
+          date: bet.created_at,
+          isPremiumBet: bet.is_premium_bet
+        }));
+
+        setTickets(transformedTickets);
+        setFilteredTickets(transformedTickets);
+      } catch (error) {
+        console.error('Error in fetchBets:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBets();
+  }, [user]);
 
   const filterTickets = (period) => {
     setFilterPeriod(period);
@@ -53,11 +93,24 @@ const Profit = () => {
     setFilteredTickets(filtered);
   };
 
-  const clearHistory = () => {
+  const clearHistory = async () => {
     if (window.confirm("Are you sure you want to clear all betting history?")) {
-      localStorage.removeItem("userBets");
-      setTickets([]);
-      setFilteredTickets([]);
+      try {
+        const { error } = await supabase
+          .from('bets')
+          .delete()
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error clearing history:', error);
+          return;
+        }
+
+        setTickets([]);
+        setFilteredTickets([]);
+      } catch (error) {
+        console.error('Error in clearHistory:', error);
+      }
     }
   };
 
@@ -117,7 +170,12 @@ const Profit = () => {
           )}
         </div>
 
-        {filteredTickets.length === 0 ? (
+        {loading ? (
+          <div className="no-tickets">
+            <Calendar size={48} />
+            <h3>Loading tickets...</h3>
+          </div>
+        ) : filteredTickets.length === 0 ? (
           <div className="no-tickets">
             <Calendar size={48} />
             <h3>No tickets found</h3>
@@ -130,7 +188,7 @@ const Profit = () => {
         ) : (
           <div className="tickets-list">
             {filteredTickets.map((ticket, index) => (
-              <TicketCard key={index} ticket={ticket} index={index} />
+              <TicketCard key={ticket.id || index} ticket={ticket} index={index} />
             ))}
           </div>
         )}
