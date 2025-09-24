@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { getErrorMessage, logError } from '../utils/errorHandler';
 
 export const useBudget = () => {
   const { user, profile } = useAuth();
@@ -33,7 +34,7 @@ export const useBudget = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching budget:', error);
+        logError(error, 'useBudget.fetchBudgetData');
         setBudgetData({ freeProfit: 0, premiumProfit: 0, loading: false });
         return;
       }
@@ -60,7 +61,7 @@ export const useBudget = () => {
           .single();
 
         if (insertError) {
-          console.error('Error creating budget:', insertError);
+          logError(insertError, 'useBudget.fetchBudgetData.createBudget');
         }
 
         setBudgetData({
@@ -70,7 +71,7 @@ export const useBudget = () => {
         });
       }
     } catch (error) {
-      console.error('Error in fetchBudgetData:', error);
+      logError(error, 'useBudget.fetchBudgetData');
       setBudgetData({ freeProfit: 0, premiumProfit: 0, loading: false });
     }
   }, [user]);
@@ -172,7 +173,7 @@ export const useBudget = () => {
         });
 
       if (error) {
-        console.error('Error updating profit:', error);
+        logError(error, 'useBudget.updateProfit');
         return;
       }
 
@@ -184,7 +185,100 @@ export const useBudget = () => {
 
       return newProfit;
     } catch (error) {
-      console.error('Error in updateProfit:', error);
+      logError(error, 'useBudget.updateProfit');
+    }
+  };
+
+  const deductStake = async (stakeAmount, isPremiumBet = false) => {
+    if (!user) return;
+
+    try {
+      const monthKey = getCurrentMonthKey();
+
+      // Deduct only the stake amount
+      const profitChange = Math.round(-stakeAmount * 100) / 100;
+      const currentProfit = isPremiumBet ? budgetData.premiumProfit : budgetData.freeProfit;
+      const newProfit = Math.round((currentProfit + profitChange) * 100) / 100;
+
+      // Update database using upsert with all required fields
+      const updateData = {
+        user_id: user.id,
+        month_year: monthKey,
+        free_profit: isPremiumBet ? budgetData.freeProfit : newProfit,
+        premium_profit: isPremiumBet ? newProfit : budgetData.premiumProfit
+      };
+
+      const { error } = await supabase
+        .from('monthly_budgets')
+        .upsert(updateData, {
+          onConflict: 'user_id,month_year'
+        });
+
+      if (error) {
+        logError(error, 'useBudget.deductStake');
+        return;
+      }
+
+      // Update local state
+      setBudgetData(prev => ({
+        ...prev,
+        [isPremiumBet ? 'premiumProfit' : 'freeProfit']: newProfit
+      }));
+
+      return newProfit;
+    } catch (error) {
+      logError(error, 'useBudget.deductStake');
+    }
+  };
+
+  const resolvePendingBet = async (stakeAmount, potentialWin, isWin, isPremiumBet = false) => {
+    if (!user) return;
+
+    try {
+      const monthKey = getCurrentMonthKey();
+      const currentProfit = isPremiumBet ? budgetData.premiumProfit : budgetData.freeProfit;
+
+      // Calculate the adjustment needed
+      // Since stake was already deducted for pending bet, we need to adjust
+      let profitAdjustment;
+      if (isWin) {
+        // Add back the full win amount (since stake was already deducted)
+        profitAdjustment = Math.round(potentialWin * 100) / 100;
+      } else {
+        // For loss, stake was already deducted, so no additional change needed
+        profitAdjustment = 0;
+      }
+
+      const newProfit = Math.round((currentProfit + profitAdjustment) * 100) / 100;
+
+      // Update database using upsert with all required fields
+      const updateData = {
+        user_id: user.id,
+        month_year: monthKey,
+        free_profit: isPremiumBet ? budgetData.freeProfit : newProfit,
+        premium_profit: isPremiumBet ? newProfit : budgetData.premiumProfit
+      };
+
+      const { error } = await supabase
+        .from('monthly_budgets')
+        .upsert(updateData, {
+          onConflict: 'user_id,month_year'
+        });
+
+      if (error) {
+        logError(error, 'useBudget.resolvePendingBet');
+        return;
+      }
+
+      // Update local state
+      setBudgetData(prev => ({
+        ...prev,
+        [isPremiumBet ? 'premiumProfit' : 'freeProfit']: newProfit
+      }));
+
+      return newProfit;
+    } catch (error) {
+      logError(error, 'useBudget.resolvePendingBet');
     }
   };
 
@@ -203,6 +297,8 @@ export const useBudget = () => {
     getAvailableBudget,
     canPlaceTicket,
     updateProfit,
+    deductStake,
+    resolvePendingBet,
     getCurrentProfit,
     refetch
   };

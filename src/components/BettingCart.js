@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { X, Trash2, ShoppingCart } from "lucide-react";
 import { useBudget } from "../hooks/useBudget";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../components/Toast/ToastProvider";
+import LoadingSpinner from "./Loading/LoadingSpinner";
+import { getBettingErrorMessage, logError } from "../utils/errorHandler";
 import { supabase } from "../lib/supabase";
 import "../styles/BettingCart.css";
 
@@ -13,12 +16,14 @@ const BettingCart = ({ cartItems, setCartItems }) => {
   const [isPremiumBet, setIsPremiumBet] = useState(false);
 
   const { user, isPremium } = useAuth();
+  const { success, error: showError, info } = useToast();
   const {
     freeProfit,
     premiumProfit,
     getAvailableBudget,
     canPlaceTicket,
-    updateProfit
+    updateProfit,
+    deductStake
   } = useBudget();
 
   const availableBudget = getAvailableBudget(isPremiumBet);
@@ -54,21 +59,21 @@ const BettingCart = ({ cartItems, setCartItems }) => {
 
   const handlePlaceBet = async () => {
     if (cartItems.length === 0) {
-      alert("Your ticket is empty!");
+      showError("Your ticket is empty!");
       return;
     }
 
     // Koristi novi sistem validacije
     const validation = canPlaceTicket(stake, isPremiumBet);
     if (!validation.canPlace) {
-      alert(validation.reason);
+      showError(validation.reason);
       setError(validation.reason);
       return;
     }
 
     // Dodatna validacija za stake
     if (stake < 1) {
-      alert("Minimum stake is 1%!");
+      showError("Minimum stake is 1%!");
       return;
     }
 
@@ -108,25 +113,35 @@ const BettingCart = ({ cartItems, setCartItems }) => {
         throw betError;
       }
 
-      // Update profit if bet is settled
+      // Update profit based on bet status
       if (ticketStatus === "won") {
         await updateProfit(stakeAmount, potentialWinAmount, true, isPremiumBet);
       } else if (ticketStatus === "lost") {
         await updateProfit(stakeAmount, potentialWinAmount, false, isPremiumBet);
+      } else if (ticketStatus === "pending") {
+        // For pending bets, only deduct the stake amount
+        await deductStake(stakeAmount, isPremiumBet);
       }
 
       // Trigger global profit update event
       window.dispatchEvent(new CustomEvent('profit-updated'));
 
-      let message = `Bet placed successfully!\nStake: ${stake}%\nPotential win: ${potentialWinAmount.toFixed(2)}%`;
-
       if (ticketStatus === "won") {
-        message += `\n\n🎉 Congratulations! You won ${potentialWinAmount.toFixed(2)}%!`;
+        success(
+          `🎉 Congratulations! You won ${potentialWinAmount.toFixed(2)}%!\nStake: ${stake}%`,
+          "Bet Won!"
+        );
       } else if (ticketStatus === "lost") {
-        message += `\n\n😔 Unfortunately, you lost this bet.`;
+        info(
+          `😔 Unfortunately, you lost this bet.\nStake: ${stake}%\nPotential win: ${potentialWinAmount.toFixed(2)}%`,
+          "Bet Lost"
+        );
+      } else {
+        info(
+          `Bet placed successfully!\nStake: ${stake}%\nPotential win: ${potentialWinAmount.toFixed(2)}%`,
+          "Bet Placed"
+        );
       }
-
-      alert(message);
 
       // Clear cart
       clearCart();
@@ -134,8 +149,10 @@ const BettingCart = ({ cartItems, setCartItems }) => {
       setIsOpen(false);
 
     } catch (error) {
-      console.error('Error placing bet:', error);
-      setError('Failed to place bet. Please try again.');
+      const errorMessage = getBettingErrorMessage(error);
+      logError(error, 'BettingCart.handlePlaceBet');
+      showError(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -288,11 +305,15 @@ const BettingCart = ({ cartItems, setCartItems }) => {
           ) : (
             <>
               <button
-                className="place-bet-button"
+                className={`place-bet-button ${loading ? "loading-button" : ""}`}
                 onClick={handlePlaceBet}
                 disabled={loading}
               >
-                {loading ? "Placing bet..." : `Place ${isPremiumBet ? "Premium " : ""}Bet`}
+                {loading ? (
+                  <LoadingSpinner size="sm" color="white" />
+                ) : (
+                  <span className="button-text">Place {isPremiumBet ? "Premium " : ""}Bet</span>
+                )}
               </button>
               <button
                 className="clear-button"

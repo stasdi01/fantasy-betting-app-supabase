@@ -3,12 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, TrendingUp, Trophy, Users, LogOut, Star } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useBudget } from "../hooks/useBudget";
+import "../components/Loading/LoadingSpinner.css";
 import "../styles/Layout.css";
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const { profile, signOut, isPremium } = useAuth();
-  const { freeProfit, premiumProfit } = useBudget();
+  const { freeProfit, loading } = useBudget();
 
   const navItems = [
     { path: "/matches", icon: Home, label: "Matches" },
@@ -19,6 +20,14 @@ const Layout = ({ children }) => {
 
   // Formatiranje profita sa bojom
   const getProfitDisplay = () => {
+    if (loading) {
+      return (
+        <span className="user-balance">
+          <div className="loading-skeleton" style={{ width: '80px', height: '1rem', display: 'inline-block' }}></div>
+        </span>
+      );
+    }
+
     const currentProfit = Math.round(freeProfit * 100) / 100; // Round to 2 decimal places
     const profitPercent = currentProfit.toFixed(2);
     const isNegative = currentProfit < 0;

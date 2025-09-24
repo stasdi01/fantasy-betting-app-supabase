@@ -114,14 +114,23 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 60px;
+  min-height: 65px;
   justify-content: center;
+  max-width: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .odd-button:hover {
   background: rgba(124, 92, 246, 0.4);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(124, 92, 246, 0.4);
+}
+
+.odd-button:active {
+  transform: translateY(0);
+  background: rgba(124, 92, 246, 0.6);
 }
 
 .odd-button:active {
@@ -141,32 +150,90 @@
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .match-card {
+    padding: 1.25rem;
+  }
+
+  .match-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+  }
+
+  .league {
+    font-size: 0.8rem;
+  }
+
+  .teams-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .team-name {
+    font-size: 0.95rem;
+  }
+
+  .odds-section {
+    gap: 0.375rem;
+  }
+
+  .odd-button {
+    padding: 0.625rem 0.5rem;
+    min-height: 60px;
+  }
+
+  .odd-value {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
   .match-card {
     padding: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .teams-section {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;
+    margin-bottom: 1rem;
   }
 
   .vs-divider {
     margin: 0;
+    font-size: 0.8rem;
   }
 
   .team-name {
     font-size: 0.9rem;
+    line-height: 1.2;
+  }
+
+  .odds-section {
+    gap: 0.25rem;
   }
 
   .odd-button {
-    padding: 0.5rem;
-    min-height: 50px;
+    padding: 0.5rem 0.375rem;
+    min-height: 55px;
+  }
+
+  .odd-label {
+    font-size: 0.7rem;
   }
 
   .odd-value {
     font-size: 1rem;
+  }
+
+  .time-indicator {
+    font-size: 0.8rem;
+  }
+
+  .live-indicator {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
   }
 }
 

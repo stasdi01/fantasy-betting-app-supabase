@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { getAuthErrorMessage, logError } from '../utils/errorHandler';
 
 const AuthContext = createContext({});
 
@@ -108,7 +109,11 @@ export const AuthProvider = ({ children }) => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        const errorMessage = getAuthErrorMessage(error);
+        logError(error, 'AuthContext.signUp');
+        return { data: null, error: { message: errorMessage } };
+      }
 
       // Profile will be created in the auth state change listener
       if (data.user) {
@@ -118,7 +123,9 @@ export const AuthProvider = ({ children }) => {
 
       return { data, error: null };
     } catch (error) {
-      return { data: null, error };
+      const errorMessage = getAuthErrorMessage(error);
+      logError(error, 'AuthContext.signUp');
+      return { data: null, error: { message: errorMessage } };
     }
   };
 
@@ -132,7 +139,9 @@ export const AuthProvider = ({ children }) => {
         .single();
 
       if (userError || !userData) {
-        return { data: null, error: { message: 'Username not found' } };
+        const errorMessage = getAuthErrorMessage({ message: 'Username not found' });
+        logError(userError || new Error('Username not found'), 'AuthContext.signIn');
+        return { data: null, error: { message: errorMessage } };
       }
 
       // Then sign in with email and password
@@ -141,10 +150,17 @@ export const AuthProvider = ({ children }) => {
         password
       });
 
-      if (error) throw error;
+      if (error) {
+        const errorMessage = getAuthErrorMessage(error);
+        logError(error, 'AuthContext.signIn');
+        return { data: null, error: { message: errorMessage } };
+      }
+
       return { data, error: null };
     } catch (error) {
-      return { data: null, error };
+      const errorMessage = getAuthErrorMessage(error);
+      logError(error, 'AuthContext.signIn');
+      return { data: null, error: { message: errorMessage } };
     }
   };
 

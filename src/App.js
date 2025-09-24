@@ -6,6 +6,10 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { useNetworkStatus } from "./hooks/useNetworkStatus";
+import { ToastProvider } from "./components/Toast/ToastProvider";
+import { ConfirmProvider } from "./components/Toast/ConfirmDialog";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Layout from "./components/Layout";
@@ -21,6 +25,9 @@ const AppContent = () => {
   const { isAuthenticated, loading, profile } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+
+  // Network status monitoring
+  useNetworkStatus();
 
   if (loading) {
     return (
@@ -68,9 +75,15 @@ const AppContent = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <ConfirmProvider>
+            <AppContent />
+          </ConfirmProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

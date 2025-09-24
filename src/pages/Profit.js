@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Filter } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useConfirm } from "../components/Toast/ConfirmDialog";
+import { useToast } from "../components/Toast/ToastProvider";
+import SkeletonCard from "../components/Loading/SkeletonCard";
+import { getErrorMessage, logError } from "../utils/errorHandler";
 import { supabase } from "../lib/supabase";
 import TicketCard from "../components/Profit/TicketCard";
 import ProfitStats from "../components/Profit/ProfitStats";
@@ -8,6 +12,8 @@ import "../styles/Profit.css";
 
 const Profit = () => {
   const { user } = useAuth();
+  const { confirm } = useConfirm();
+  const { success, error: showError } = useToast();
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [filterPeriod, setFilterPeriod] = useState("all"); // all, today, week, month
@@ -28,7 +34,9 @@ const Profit = () => {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Error fetching bets:', error);
+          const errorMessage = getErrorMessage(error);
+          logError(error, 'Profit.fetchBets');
+          showError(errorMessage);
           return;
         }
 
@@ -47,7 +55,9 @@ const Profit = () => {
         setTickets(transformedTickets);
         setFilteredTickets(transformedTickets);
       } catch (error) {
-        console.error('Error in fetchBets:', error);
+        const errorMessage = getErrorMessage(error);
+        logError(error, 'Profit.fetchBets');
+        showError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -94,7 +104,13 @@ const Profit = () => {
   };
 
   const clearHistory = async () => {
-    if (window.confirm("Are you sure you want to clear all betting history?")) {
+    const confirmed = await confirm({
+      title: "Clear Betting History",
+      message: "Are you sure you want to clear all betting history? This action cannot be undone.",
+      type: "danger"
+    });
+
+    if (confirmed) {
       try {
         const { error } = await supabase
           .from('bets')
@@ -102,14 +118,19 @@ const Profit = () => {
           .eq('user_id', user.id);
 
         if (error) {
-          console.error('Error clearing history:', error);
+          const errorMessage = getErrorMessage(error);
+          logError(error, 'Profit.clearHistory');
+          showError(errorMessage);
           return;
         }
 
         setTickets([]);
         setFilteredTickets([]);
+        success("Betting history cleared successfully!");
       } catch (error) {
-        console.error('Error in clearHistory:', error);
+        const errorMessage = getErrorMessage(error);
+        logError(error, 'Profit.clearHistory');
+        showError(errorMessage);
       }
     }
   };
@@ -171,9 +192,10 @@ const Profit = () => {
         </div>
 
         {loading ? (
-          <div className="no-tickets">
-            <Calendar size={48} />
-            <h3>Loading tickets...</h3>
+          <div className="tickets-list">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SkeletonCard key={index} type="ticket" />
+            ))}
           </div>
         ) : filteredTickets.length === 0 ? (
           <div className="no-tickets">

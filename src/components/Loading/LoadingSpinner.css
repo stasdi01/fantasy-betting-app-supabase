@@ -1,0 +1,168 @@
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.spinner {
+  border-radius: 50%;
+  border-style: solid;
+  animation: spin 1s linear infinite;
+}
+
+/* Sizes */
+.spinner-sm .spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.spinner-md .spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.spinner-lg .spinner {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+/* Colors */
+.spinner-primary .spinner {
+  border-color: var(--primary-light);
+  border-top-color: var(--primary);
+}
+
+.spinner-secondary .spinner {
+  border-color: var(--border);
+  border-top-color: var(--text-secondary);
+}
+
+.spinner-white .spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+.spinner-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 0.25rem;
+}
+
+.spinner-sm .spinner-text {
+  font-size: 0.75rem;
+}
+
+.spinner-lg .spinner-text {
+  font-size: 1rem;
+}
+
+/* Overlay */
+.spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: inherit;
+}
+
+/* Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Button loading states */
+.loading-button {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading-button .button-text {
+  opacity: 0;
+}
+
+.loading-button .loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Card loading skeleton */
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-line {
+  height: 1rem;
+  margin: 0.5rem 0;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+}
+
+.skeleton-line.long {
+  width: 100%;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .spinner-lg .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+
+  .spinner-md .spinner {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+  }
+}

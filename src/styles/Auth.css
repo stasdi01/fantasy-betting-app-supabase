@@ -23,15 +23,31 @@
   color: white;
 }
 
+.form-field {
+  margin: 0.5rem 0 1rem 0;
+}
+
 .auth-card input {
   width: 100%;
   padding: 12px;
-  margin: 0.5rem 0;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.auth-card input.error {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
 }
 
 .auth-card input::placeholder {

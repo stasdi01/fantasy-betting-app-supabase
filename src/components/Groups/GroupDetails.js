@@ -1,8 +1,13 @@
 import React from "react";
 import { X } from "lucide-react";
+import { useToast } from "../Toast/ToastProvider";
+import { useConfirm } from "../Toast/ConfirmDialog";
 import "../../styles/GroupDetails.css";
 
 const GroupDetails = ({ group, onClose, onLeaveGroup }) => {
+  const { info } = useToast();
+  const { confirm } = useConfirm();
+
   if (!group) return null;
 
   // Sortiraj članove po profitu
@@ -29,8 +34,14 @@ const GroupDetails = ({ group, onClose, onLeaveGroup }) => {
   };
 
   // Funkcija za napuštanje grupe
-  const handleLeaveGroup = () => {
-    if (window.confirm(`Are you sure you want to leave "${group.name}"?`)) {
+  const handleLeaveGroup = async () => {
+    const confirmed = await confirm({
+      title: "Leave Group",
+      message: `Are you sure you want to leave "${group.name}"?`,
+      type: "warning"
+    });
+
+    if (confirmed) {
       onLeaveGroup(group.id);
       onClose();
     }
@@ -121,7 +132,7 @@ const GroupDetails = ({ group, onClose, onLeaveGroup }) => {
           )}
           <button
             className="invite-button"
-            onClick={() => alert("Invite feature coming soon!")}
+            onClick={() => info("Invite feature coming soon!", "Coming Soon")}
           >
             Invite Friends
           </button>

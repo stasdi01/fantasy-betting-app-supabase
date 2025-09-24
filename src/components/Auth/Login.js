@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../Loading/LoadingSpinner";
+import { validateForm, loginValidationRules } from "../../utils/validation";
 import "../../styles/Auth.css";
 
 const Login = ({ switchToRegister }) => {
@@ -10,16 +12,21 @@ const Login = ({ switchToRegister }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.username || !formData.password) {
-      setError("Please fill in all fields");
+
+    // Validate form
+    const validation = validateForm(formData, loginValidationRules);
+    if (!validation.isValid) {
+      setFieldErrors(validation.errors);
       return;
     }
 
     setLoading(true);
     setError("");
+    setFieldErrors({});
 
     const { error: signInError } = await signIn(formData.username, formData.password);
 
@@ -45,28 +52,44 @@ const Login = ({ switchToRegister }) => {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={formData.username}
-            onChange={(e) =>
-              setFormData({ ...formData, username: e.target.value })
-            }
-            required
-            disabled={loading}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            required
-            disabled={loading}
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Log In"}
+          <div className="form-field">
+            <input
+              type="text"
+              placeholder="Username"
+              value={formData.username}
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
+              required
+              disabled={loading}
+              className={fieldErrors.username ? "error" : ""}
+            />
+            {fieldErrors.username && (
+              <div className="field-error">{fieldErrors.username}</div>
+            )}
+          </div>
+          <div className="form-field">
+            <input
+              type="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              required
+              disabled={loading}
+              className={fieldErrors.password ? "error" : ""}
+            />
+            {fieldErrors.password && (
+              <div className="field-error">{fieldErrors.password}</div>
+            )}
+          </div>
+          <button type="submit" disabled={loading} className={loading ? "loading-button" : ""}>
+            {loading ? (
+              <LoadingSpinner size="sm" color="white" />
+            ) : (
+              <span className="button-text">Log In</span>
+            )}
           </button>
         </form>
         <p>

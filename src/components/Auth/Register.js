@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../Loading/LoadingSpinner";
 import "../../styles/Auth.css";
 
 const Register = ({ switchToLogin }) => {
@@ -98,8 +99,12 @@ const Register = ({ switchToLogin }) => {
             required
             disabled={loading}
           />
-          <button type="submit" disabled={loading}>
-            {loading ? "Creating account..." : "Register"}
+          <button type="submit" disabled={loading} className={loading ? "loading-button" : ""}>
+            {loading ? (
+              <LoadingSpinner size="sm" color="white" />
+            ) : (
+              <span className="button-text">Register</span>
+            )}
           </button>
         </form>
         <p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Target, Trophy } from "lucide-react";
 import MatchCard from "../components/Matches/MatchCard";
+import SkeletonCard from "../components/Loading/SkeletonCard";
 import { matchesData, randomizeOdds } from "../data/matchesData";
 import "../styles/Matches.css";
 
@@ -10,22 +11,35 @@ const Matches = ({ cartItems, setCartItems }) => {
     football: [],
     basketball: [],
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const footballWithRandomOdds = matchesData.football.map((match) => ({
-      ...match,
-      odds: randomizeOdds(match.odds),
-    }));
+    // Simulate loading delay
+    const loadMatches = async () => {
+      setLoading(true);
 
-    const basketballWithRandomOdds = matchesData.basketball.map((match) => ({
-      ...match,
-      odds: randomizeOdds(match.odds),
-    }));
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 800));
 
-    setMatches({
-      football: footballWithRandomOdds,
-      basketball: basketballWithRandomOdds,
-    });
+      const footballWithRandomOdds = matchesData.football.map((match) => ({
+        ...match,
+        odds: randomizeOdds(match.odds),
+      }));
+
+      const basketballWithRandomOdds = matchesData.basketball.map((match) => ({
+        ...match,
+        odds: randomizeOdds(match.odds),
+      }));
+
+      setMatches({
+        football: footballWithRandomOdds,
+        basketball: basketballWithRandomOdds,
+      });
+
+      setLoading(false);
+    };
+
+    loadMatches();
   }, []);
 
   const handleOddClick = (match, betType, oddValue) => {
@@ -100,15 +114,21 @@ const Matches = ({ cartItems, setCartItems }) => {
       </div>
 
       <div className="matches-list">
-        {matches[activeTab].map((match) => (
-          <MatchCard
-            key={match.id}
-            match={match}
-            sport={activeTab}
-            onOddClick={handleOddClick}
-            selectedBets={cartItems}
-          />
-        ))}
+        {loading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <SkeletonCard key={index} type="match" />
+          ))
+        ) : (
+          matches[activeTab].map((match) => (
+            <MatchCard
+              key={match.id}
+              match={match}
+              sport={activeTab}
+              onOddClick={handleOddClick}
+              selectedBets={cartItems}
+            />
+          ))
+        )}
       </div>
     </div>
   );

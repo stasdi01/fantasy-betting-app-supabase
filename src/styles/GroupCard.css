@@ -24,17 +24,13 @@
 }
 
 .group-card.joined::before {
-  content: "MEMBER";
+  content: '';
   position: absolute;
-  top: 10px;
-  right: -30px;
-  background: #10b981;
-  color: white;
-  padding: 5px 40px;
-  font-size: 10px;
-  font-weight: 600;
-  transform: rotate(45deg);
-  letter-spacing: 1px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--success), #10b981);
 }
 
 /* Group Header */
