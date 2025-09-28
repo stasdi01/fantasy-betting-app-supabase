@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, TrendingUp, Trophy, Users, LogOut, Star } from "lucide-react";
+import { Home, TrendingUp, Trophy, Users, LogOut, Star, Crown, Target, Zap, Award, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useBudget } from "../hooks/useBudget";
 import "../components/Loading/LoadingSpinner.css";
@@ -8,17 +8,22 @@ import "../styles/Layout.css";
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const { profile, signOut, isPremium } = useAuth();
-  const { freeProfit, loading } = useBudget();
+  const { profile, signOut, isPremium, isMax } = useAuth();
+  const { betLeagueProfit, myTeamLeagueProfit, loading } = useBudget();
 
   const navItems = [
     { path: "/matches", icon: Home, label: "Matches" },
     { path: "/profit", icon: TrendingUp, label: "Profit" },
-    { path: "/groups", icon: Users, label: "Groups" },
-    { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+    { path: "/myteam", icon: Target, label: "MyTeam" },
+    { path: "/public-league", icon: Trophy, label: "Public League" },
+    { path: "/your-leagues", icon: Users, label: "Your Leagues" },
+    { path: "/leaderboard", icon: Award, label: "Leaderboard" },
+    ...(isMax ? [{ path: "/vip-team", icon: Crown, label: "VIP Team" }] : []),
+    { path: "/premium", icon: Zap, label: "Premium" },
+    { path: "/profile", icon: User, label: "Profile" },
   ];
 
-  // Formatiranje profita sa bojom
+  // Display combined profit from both leagues
   const getProfitDisplay = () => {
     if (loading) {
       return (
@@ -28,18 +33,20 @@ const Layout = ({ children }) => {
       );
     }
 
-    const currentProfit = Math.round(freeProfit * 100) / 100; // Round to 2 decimal places
+    const totalProfit = betLeagueProfit + myTeamLeagueProfit;
+    const currentProfit = Math.round(totalProfit * 100) / 100; // Round to 2 decimal places
     const profitPercent = currentProfit.toFixed(2);
     const isNegative = currentProfit < 0;
-    const isBlocked = currentProfit <= -100;
+    const isBlocked = betLeagueProfit <= -100 || myTeamLeagueProfit <= -100;
 
     return (
       <span
         className={`user-balance ${isNegative ? "negative" : "positive"} ${
           isBlocked ? "blocked" : ""
         }`}
+        title={`BetLeague: ${betLeagueProfit.toFixed(2)}% | MyTeam: ${myTeamLeagueProfit.toFixed(2)}%`}
       >
-        Profit: {isNegative ? "" : "+"}
+        Total: {isNegative ? "" : "+"}
         {profitPercent}%
       </span>
     );

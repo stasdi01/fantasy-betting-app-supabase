@@ -15,14 +15,19 @@ import Register from "./components/Auth/Register";
 import Layout from "./components/Layout";
 import Matches from "./pages/Matches";
 import Profit from "./pages/Profit";
-import Groups from "./pages/Groups";
+import MyTeam from "./pages/MyTeam";
+import PublicLeague from "./pages/PublicLeague";
+import YourLeagues from "./pages/YourLeagues";
 import Leaderboard from "./pages/Leaderboard";
-import BettingCart from "./components/BettingCart";
+import VipTeam from "./pages/VipTeam";
+import Premium from "./pages/Premium";
+import Profile from "./pages/Profile";
+import PredictionCart from "./components/PredictionCart";
 import "./App.css";
 import "./styles/theme.css";
 
 const AppContent = () => {
-  const { isAuthenticated, loading, profile } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
   const [cartItems, setCartItems] = useState([]);
 
@@ -64,11 +69,16 @@ const AppContent = () => {
             }
           />
           <Route path="/profit" element={<Profit />} />
-          <Route path="/groups" element={<Groups />} />
+          <Route path="/myteam" element={<MyTeam />} />
+          <Route path="/public-league" element={<PublicLeague />} />
+          <Route path="/your-leagues" element={<YourLeagues />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/vip-team" element={<VipTeam />} />
+          <Route path="/premium" element={<Premium />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
-      <BettingCart cartItems={cartItems} setCartItems={setCartItems} />
+      <PredictionCart cartItems={cartItems} setCartItems={setCartItems} />
     </Router>
   );
 };

@@ -66,9 +66,9 @@ export const mockMonthlyWinners = {
   "2024-09": "Pera_Peric"
 };
 
-// Mock leaderboard data for current month (Top 2 from each rank)
+// Mock leaderboard data for current month (Top 3 from each rank)
 export const mockFreeLeagueLeaderboard = [
-  // Diamond League - Top 2
+  // Diamond League - Top 3
   {
     id: 1,
     username: "ProBetter23",
@@ -89,10 +89,20 @@ export const mockFreeLeagueLeaderboard = [
     avatar: "💎",
     rankPosition: 2
   },
-
-  // Platinum League - Top 2
   {
     id: 3,
+    username: "EliteTrader",
+    profit: 187.6,
+    rank: LEAGUE_RANKS.DIAMOND,
+    bets: 102,
+    winRate: 59.8,
+    avatar: "✨",
+    rankPosition: 3
+  },
+
+  // Platinum League - Top 3
+  {
+    id: 4,
     username: "PlatinumAce",
     profit: 167.8,
     rank: LEAGUE_RANKS.PLATINUM,
@@ -102,7 +112,7 @@ export const mockFreeLeagueLeaderboard = [
     rankPosition: 1
   },
   {
-    id: 4,
+    id: 5,
     username: "RiskTaker_Pro",
     profit: 134.2,
     rank: LEAGUE_RANKS.PLATINUM,
@@ -111,10 +121,20 @@ export const mockFreeLeagueLeaderboard = [
     avatar: "⚡",
     rankPosition: 2
   },
-
-  // Gold League - Top 2
   {
-    id: 5,
+    id: 6,
+    username: "PlatinumStar",
+    profit: 125.9,
+    rank: LEAGUE_RANKS.PLATINUM,
+    bets: 143,
+    winRate: 56.6,
+    avatar: "🌟",
+    rankPosition: 3
+  },
+
+  // Gold League - Top 3
+  {
+    id: 7,
     username: "GoldRush_99",
     profit: 128.9,
     rank: LEAGUE_RANKS.GOLD,
@@ -124,7 +144,7 @@ export const mockFreeLeagueLeaderboard = [
     rankPosition: 1
   },
   {
-    id: 6,
+    id: 8,
     username: "ChampionBet",
     profit: 97.6,
     rank: LEAGUE_RANKS.GOLD,
@@ -133,8 +153,18 @@ export const mockFreeLeagueLeaderboard = [
     avatar: "👑",
     rankPosition: 2
   },
+  {
+    id: 9,
+    username: "GoldMiner",
+    profit: 86.4,
+    rank: LEAGUE_RANKS.GOLD,
+    bets: 134,
+    winRate: 53.7,
+    avatar: "⚡",
+    rankPosition: 3
+  },
 
-  // Silver League - Top 2
+  // Silver League - Top 3
   {
     id: 7,
     username: "WinStreak_12",
@@ -146,7 +176,7 @@ export const mockFreeLeagueLeaderboard = [
     rankPosition: 1
   },
   {
-    id: 8,
+    id: 11,
     username: "BigWinner",
     profit: 76.3,
     rank: LEAGUE_RANKS.SILVER,
@@ -155,8 +185,18 @@ export const mockFreeLeagueLeaderboard = [
     avatar: "🎲",
     rankPosition: 2
   },
+  {
+    id: 12,
+    username: "SilverBullet",
+    profit: 68.7,
+    rank: LEAGUE_RANKS.SILVER,
+    bets: 98,
+    winRate: 61.2,
+    avatar: "🚀",
+    rankPosition: 3
+  },
 
-  // Bronze League - Top 2
+  // Bronze League - Top 3
   {
     id: 9,
     username: "SmartBets_21",
@@ -168,7 +208,7 @@ export const mockFreeLeagueLeaderboard = [
     rankPosition: 1
   },
   {
-    id: 10,
+    id: 13,
     username: "CleverPlay",
     profit: 54.2,
     rank: LEAGUE_RANKS.BRONZE,
@@ -176,6 +216,16 @@ export const mockFreeLeagueLeaderboard = [
     winRate: 51.2,
     avatar: "🎯",
     rankPosition: 2
+  },
+  {
+    id: 14,
+    username: "BronzeStar",
+    profit: 47.8,
+    rank: LEAGUE_RANKS.BRONZE,
+    bets: 76,
+    winRate: 57.9,
+    avatar: "⭐",
+    rankPosition: 3
   }
 ];
 

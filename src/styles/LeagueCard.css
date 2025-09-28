@@ -1,0 +1,245 @@
+/* League Card Styles */
+.league-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.league-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+  border-color: var(--primary-light);
+}
+
+.league-card.owner {
+  border-color: var(--warning);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 193, 7, 0.05) 100%);
+}
+
+.league-card.member {
+  border-color: var(--success);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(34, 197, 94, 0.05) 100%);
+}
+
+.league-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.league-info {
+  flex: 1;
+}
+
+.league-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.league-name svg {
+  color: var(--primary);
+}
+
+.league-name h3 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.owner-badge {
+  color: var(--warning) !important;
+}
+
+.privacy-icon {
+  color: var(--text-muted);
+}
+
+.league-type {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.league-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.member-count {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.member-count svg {
+  color: var(--primary);
+}
+
+.full-badge {
+  background: var(--danger);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.league-description {
+  margin-bottom: 1rem;
+}
+
+.league-description p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.league-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.detail-item.rules {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.detail-item .label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.detail-item .value {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.detail-item.rules .value {
+  text-align: left;
+  font-style: italic;
+}
+
+.league-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading-actions {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-btn.join {
+  background: var(--primary);
+  color: white;
+}
+
+.action-btn.join:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.action-btn.leave {
+  background: var(--warning);
+  color: var(--text-primary);
+}
+
+.action-btn.leave:hover:not(:disabled) {
+  background: var(--warning-dark);
+  transform: translateY(-1px);
+}
+
+.action-btn.delete {
+  background: var(--danger);
+  color: white;
+}
+
+.action-btn.delete:hover:not(:disabled) {
+  background: var(--danger-dark);
+  transform: translateY(-1px);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .league-card {
+    padding: 1rem;
+  }
+
+  .league-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .league-status {
+    align-self: flex-end;
+  }
+
+  .league-name h3 {
+    font-size: 1rem;
+  }
+
+  .detail-item {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+
+  .detail-item .value {
+    text-align: left;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

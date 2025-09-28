@@ -14,20 +14,44 @@ const BettingCart = ({ cartItems, setCartItems }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isPremiumBet, setIsPremiumBet] = useState(false);
+  const [selectedPool, setSelectedPool] = useState("free"); // "free" or pool ID
 
   const { user, isPremium } = useAuth();
   const { success, error: showError, info } = useToast();
   const {
-    freeProfit,
-    premiumProfit,
+    betLeagueProfit,
+    myTeamLeagueProfit,
     getAvailableBudget,
     canPlaceTicket,
     updateProfit,
-    deductStake
+    deductStake,
+    // TODO: Add custom league budget functions when Your Leagues system is implemented
   } = useBudget();
 
-  const availableBudget = getAvailableBudget(isPremiumBet);
-  const currentProfit = isPremiumBet ? premiumProfit : freeProfit;
+  // TODO: Replace with custom leagues data when Your Leagues system is implemented
+  const joinedPools = [];
+
+  // Get budget based on selected pool
+  const getSelectedBudget = () => {
+    if (selectedPool === "free") {
+      return getAvailableBudget(isPremiumBet);
+    } else {
+      // TODO: Add custom league budget handling when Your Leagues system is implemented
+      return 0;
+    }
+  };
+
+  const getSelectedProfit = () => {
+    if (selectedPool === "free") {
+      return isPremiumBet ? myTeamLeagueProfit : betLeagueProfit;
+    } else {
+      // TODO: Add custom league profit handling when Your Leagues system is implemented
+      return 0;
+    }
+  };
+
+  const availableBudget = getSelectedBudget();
+  const currentProfit = getSelectedProfit();
 
   useEffect(() => {
     // Ako je trenutni stake veći od dostupnog budžeta, smanji ga
@@ -39,7 +63,17 @@ const BettingCart = ({ cartItems, setCartItems }) => {
     if (availableBudget > 0) {
       setError("");
     }
-  }, [stake, availableBudget]);
+  }, [stake, availableBudget, selectedPool]);
+
+  // Reset stake when pool selection changes
+  useEffect(() => {
+    const newBudget = getSelectedBudget();
+    if (stake > newBudget) {
+      setStake(Math.min(10, newBudget));
+    }
+  }, [selectedPool]);
+
+  // TODO: Listen for custom leagues updates when Your Leagues system is implemented
 
   // Ukloni utakmicu iz tiketa
   const removeFromCart = (itemId) => {
@@ -58,13 +92,36 @@ const BettingCart = ({ cartItems, setCartItems }) => {
   };
 
   const handlePlaceBet = async () => {
+    console.log('=== STARTING BET PLACEMENT ===');
+    console.log('Cart items:', cartItems.length);
     if (cartItems.length === 0) {
       showError("Your ticket is empty!");
       return;
     }
 
-    // Koristi novi sistem validacije
-    const validation = canPlaceTicket(stake, isPremiumBet);
+    // Debug selected pool and budget info
+    console.log('Selected pool:', selectedPool);
+    console.log('Stake:', stake);
+    console.log('Is premium bet:', isPremiumBet);
+    console.log('Available budget:', getSelectedBudget());
+
+    // Validacija based on selected pool
+    let validation;
+
+    try {
+      if (selectedPool === "free") {
+        validation = canPlaceTicket(stake, isPremiumBet);
+      } else {
+        // TODO: Add custom league validation when Your Leagues system is implemented
+        validation = { canPlace: false, reason: "Custom leagues not yet implemented" };
+      }
+      console.log('Validation result:', validation);
+    } catch (validationError) {
+      console.error('Validation error:', validationError);
+      showError("Validation failed: " + validationError.message);
+      return;
+    }
+
     if (!validation.canPlace) {
       showError(validation.reason);
       setError(validation.reason);
@@ -95,7 +152,11 @@ const BettingCart = ({ cartItems, setCartItems }) => {
 
       const betData = {
         user_id: user.id,
-        match_data: cartItems,
+        match_data: {
+          matches: cartItems,
+          bet_type: selectedPool === "free" ? (isPremiumBet ? "premium" : "free") : "vip_pool",
+          vip_pool_id: selectedPool !== "free" ? selectedPool : null
+        },
         total_odds: getTotalOdds(),
         stake_amount: stakeAmount,
         potential_win: potentialWinAmount,
@@ -105,22 +166,33 @@ const BettingCart = ({ cartItems, setCartItems }) => {
       };
 
       // Save bet to database
-      const { error: betError } = await supabase
+      console.log('Saving bet data:', betData);
+      const { data: betResult, error: betError } = await supabase
         .from('bets')
         .insert([betData]);
 
+      console.log('Database insert result:', { betResult, betError });
+
       if (betError) {
+        console.error('Database error:', betError);
         throw betError;
       }
 
-      // Update profit based on bet status
-      if (ticketStatus === "won") {
-        await updateProfit(stakeAmount, potentialWinAmount, true, isPremiumBet);
-      } else if (ticketStatus === "lost") {
-        await updateProfit(stakeAmount, potentialWinAmount, false, isPremiumBet);
-      } else if (ticketStatus === "pending") {
-        // For pending bets, only deduct the stake amount
-        await deductStake(stakeAmount, isPremiumBet);
+      // Update profit based on bet status and selected pool
+      console.log('Updating profit. Status:', ticketStatus, 'Pool:', selectedPool);
+      if (selectedPool === "free") {
+        // Free League betting
+        console.log('Updating free league profit...');
+        if (ticketStatus === "won") {
+          await updateProfit(stakeAmount, potentialWinAmount, true, isPremiumBet);
+        } else if (ticketStatus === "lost") {
+          await updateProfit(stakeAmount, potentialWinAmount, false, isPremiumBet);
+        } else if (ticketStatus === "pending") {
+          await deductStake(stakeAmount, isPremiumBet);
+        }
+      } else {
+        // TODO: Custom League betting when Your Leagues system is implemented
+        console.log('Custom league betting not yet implemented');
       }
 
       // Trigger global profit update event
@@ -145,12 +217,12 @@ const BettingCart = ({ cartItems, setCartItems }) => {
 
       // Clear cart
       clearCart();
-      setStake(Math.min(10, getAvailableBudget(isPremiumBet)));
+      setStake(Math.min(10, getSelectedBudget()));
       setIsOpen(false);
 
     } catch (error) {
-      const errorMessage = getBettingErrorMessage(error);
-      logError(error, 'BettingCart.handlePlaceBet');
+      console.error('Betting error:', error);
+      const errorMessage = error.message || "Something went wrong. Please try again.";
       showError(errorMessage);
       setError(errorMessage);
     } finally {
@@ -227,8 +299,42 @@ const BettingCart = ({ cartItems, setCartItems }) => {
             <span className="odds-value">{getTotalOdds().toFixed(2)}</span>
           </div>
 
-          {/* Premium Bet Toggle */}
-          {isPremium && (
+          {/* Pool Selection */}
+          <div className="pool-selection" style={{ marginBottom: '1rem' }}>
+            <label style={{ color: 'var(--text-primary)', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
+              Select Budget:
+            </label>
+            <select
+              value={selectedPool}
+              onChange={(e) => {
+                setSelectedPool(e.target.value);
+                // Reset premium bet when switching to pool
+                if (e.target.value !== "free") {
+                  setIsPremiumBet(false);
+                }
+              }}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: '6px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                marginBottom: '0.5rem'
+              }}
+              disabled={loading}
+            >
+              <option value="free">Free League</option>
+              {joinedPools.map(pool => (
+                <option key={pool.id} value={pool.id}>
+                  👑 {pool.name} Pool
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Premium Bet Toggle (only for Free League) */}
+          {isPremium && selectedPool === "free" && (
             <div className="premium-bet-toggle" style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
@@ -277,7 +383,7 @@ const BettingCart = ({ cartItems, setCartItems }) => {
                 display: "block",
               }}
             >
-              Available budget: {availableBudget.toFixed(1)}% | Current profit:{" "}
+              Available budget: {availableBudget.toFixed(1)}% | {selectedPool === "free" ? "League" : "Pool"} profit:{" "}
               <span style={{ color: currentProfit >= 0 ? "var(--success)" : "var(--danger)" }}>
                 {currentProfit >= 0 ? "+" : ""}{currentProfit.toFixed(1)}%
               </span>
@@ -300,7 +406,10 @@ const BettingCart = ({ cartItems, setCartItems }) => {
             <div
               style={{ color: "#ef4444", textAlign: "center", padding: "1rem" }}
             >
-              {isPremiumBet ? "Premium budget" : "Account"} blocked! Monthly limit reached (-100% profit)
+              {selectedPool === "free"
+                ? (isPremiumBet ? "Premium budget" : "Account") + " blocked! Monthly limit reached (-100% profit)"
+                : "VIP Pool budget blocked! Pool limit reached (-100% profit)"
+              }
             </div>
           ) : (
             <>
@@ -312,7 +421,9 @@ const BettingCart = ({ cartItems, setCartItems }) => {
                 {loading ? (
                   <LoadingSpinner size="sm" color="white" />
                 ) : (
-                  <span className="button-text">Place {isPremiumBet ? "Premium " : ""}Bet</span>
+                  <span className="button-text">
+                    Place {selectedPool === "free" ? (isPremiumBet ? "Premium " : "") : "VIP Pool "}Bet
+                  </span>
                 )}
               </button>
               <button

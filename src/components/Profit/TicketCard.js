@@ -60,6 +60,14 @@ const TicketCard = ({ ticket, index }) => {
     return "Pending";
   };
 
+  const getBetTypeIndicator = () => {
+    // TODO: Add custom league indicator when Your Leagues system is implemented
+    if (ticket.betType === "premium" || ticket.isPremiumBet) {
+      return <span className="bet-type-badge premium">👑 Premium</span>;
+    }
+    return <span className="bet-type-badge free">🆓 Free League</span>;
+  };
+
   return (
     <div className={getStatusClass()}>
       <div className="ticket-header" onClick={() => setIsExpanded(!isExpanded)}>
@@ -69,6 +77,7 @@ const TicketCard = ({ ticket, index }) => {
             {getStatusIcon()}
           </div>
           <div className="ticket-date">{formatDate(ticket.date)}</div>
+          {getBetTypeIndicator()}
         </div>
 
         <div className="ticket-summary">

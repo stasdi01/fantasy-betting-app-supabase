@@ -1,4 +1,4 @@
-// Mock data za fudbalske i košarkaške utakmice
+// Mock data za fudbalske, košarkaške i tenis utakmice
 export const matchesData = {
   football: [
     {
@@ -126,6 +126,122 @@ export const matchesData = {
       },
     },
   ],
+  tennis: [
+    {
+      id: 201,
+      homeTeam: "Novak Djokovic",
+      awayTeam: "Carlos Alcaraz",
+      league: "ATP Finals",
+      date: "2024-12-15",
+      time: "14:00",
+      status: "upcoming",
+      odds: {
+        home: 1.75,
+        away: 2.05,
+      },
+      sets: {
+        "2-0": 2.8,
+        "2-1": 3.2,
+        "0-2": 3.6,
+        "1-2": 4.1,
+      }
+    },
+    {
+      id: 202,
+      homeTeam: "Iga Swiatek",
+      awayTeam: "Aryna Sabalenka",
+      league: "WTA Finals",
+      date: "2024-12-15",
+      time: "16:30",
+      status: "live",
+      odds: {
+        home: 1.95,
+        away: 1.85,
+      },
+      sets: {
+        "2-0": 3.1,
+        "2-1": 3.4,
+        "0-2": 3.0,
+        "1-2": 3.8,
+      }
+    },
+    {
+      id: 203,
+      homeTeam: "Jannik Sinner",
+      awayTeam: "Daniil Medvedev",
+      league: "ATP Masters 1000",
+      date: "2024-12-16",
+      time: "15:00",
+      status: "upcoming",
+      odds: {
+        home: 1.65,
+        away: 2.25,
+      },
+      sets: {
+        "2-0": 2.6,
+        "2-1": 3.0,
+        "0-2": 4.2,
+        "1-2": 4.8,
+      }
+    },
+    {
+      id: 204,
+      homeTeam: "Coco Gauff",
+      awayTeam: "Jessica Pegula",
+      league: "WTA 1000",
+      date: "2024-12-16",
+      time: "18:00",
+      status: "upcoming",
+      odds: {
+        home: 2.1,
+        away: 1.75,
+      },
+      sets: {
+        "2-0": 3.4,
+        "2-1": 3.8,
+        "0-2": 2.9,
+        "1-2": 3.6,
+      }
+    },
+    {
+      id: 205,
+      homeTeam: "Rafael Nadal",
+      awayTeam: "Stefanos Tsitsipas",
+      league: "ATP 500",
+      date: "2024-12-17",
+      time: "13:30",
+      status: "upcoming",
+      odds: {
+        home: 1.85,
+        away: 1.95,
+      },
+      sets: {
+        "2-0": 3.0,
+        "2-1": 3.3,
+        "0-2": 3.1,
+        "1-2": 3.7,
+      }
+    },
+    {
+      id: 206,
+      homeTeam: "Elena Rybakina",
+      awayTeam: "Barbora Krejcikova",
+      league: "WTA 500",
+      date: "2024-12-17",
+      time: "17:00",
+      status: "upcoming",
+      odds: {
+        home: 1.55,
+        away: 2.45,
+      },
+      sets: {
+        "2-0": 2.4,
+        "2-1": 2.9,
+        "0-2": 4.8,
+        "1-2": 5.2,
+      }
+    },
+  ],
 };
 
 // Funkcija koja random menja kvote za ±0.05
@@ -147,7 +263,7 @@ export const randomizeOdds = (originalOdds) => {
       away: roundToTwo(Math.max(1.01, originalOdds.away + randomChange())),
     };
   } else {
-    // Basketball
+    // Basketball or Tennis
     return {
       home: roundToTwo(Math.max(1.01, originalOdds.home + randomChange())),
       away: roundToTwo(Math.max(1.01, originalOdds.away + randomChange())),

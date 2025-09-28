@@ -114,6 +114,40 @@
   height: 16px;
 }
 
+/* Bet Type Filters */
+.bet-type-filters {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.filter-btn.secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+}
+
+.filter-btn.secondary:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn.secondary.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
 /* Statistics Section */
 .profit-stats {
   background: var(--bg-secondary);

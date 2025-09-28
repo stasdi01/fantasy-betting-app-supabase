@@ -14,9 +14,12 @@ const Profit = () => {
   const { user } = useAuth();
   const { confirm } = useConfirm();
   const { success, error: showError } = useToast();
+  // TODO: Replace with custom leagues data when Your Leagues system is implemented
+  const joinedPools = [];
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [filterPeriod, setFilterPeriod] = useState("all"); // all, today, week, month
+  const [filterType, setFilterType] = useState("all"); // all, free, premium, pool_5, pool_10, pool_15, pool_30
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ const Profit = () => {
 
       try {
         const { data, error } = await supabase
-          .from('bets')
+          .from('predictions')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
@@ -40,17 +43,40 @@ const Profit = () => {
           return;
         }
 
-        // Transform Supabase data to match old localStorage format
-        const transformedTickets = data.map(bet => ({
-          id: bet.id,
-          matches: bet.match_data,
-          totalOdds: bet.total_odds,
-          stake: bet.stake_amount,
-          potentialWin: bet.potential_win,
-          status: bet.status,
-          date: bet.created_at,
-          isPremiumBet: bet.is_premium_bet
-        }));
+        // Transform predictions data to match ticket format
+        const transformedTickets = data.map(prediction => {
+          // Handle match_data from predictions table
+          let matches = [];
+          if (prediction.match_data && prediction.match_data.matches) {
+            matches = prediction.match_data.matches;
+          } else if (Array.isArray(prediction.match_data)) {
+            matches = prediction.match_data;
+          }
+
+          // Determine bet type from league_type and league_id
+          let betType = "free";
+          if (prediction.league_id) {
+            betType = "custom_league";
+          } else if (prediction.league_type === "MyTeam") {
+            betType = "premium";
+          }
+
+          return {
+            id: prediction.id,
+            matches: matches,
+            totalOdds: prediction.total_odds || 0,
+            stake: prediction.stake_amount,
+            potentialWin: prediction.potential_return || 0,
+            status: prediction.status,
+            date: prediction.created_at,
+            isPremiumBet: prediction.league_type === "MyTeam",
+            betType: betType,
+            leagueType: prediction.league_type,
+            leagueId: prediction.league_id,
+            predictionChoice: prediction.prediction_choice,
+            description: prediction.description
+          };
+        });
 
         setTickets(transformedTickets);
         setFilteredTickets(transformedTickets);
@@ -66,15 +92,14 @@ const Profit = () => {
     fetchBets();
   }, [user]);
 
-  const filterTickets = (period) => {
-    setFilterPeriod(period);
-
+  const applyFilters = () => {
     const now = new Date();
     let filtered = [...tickets];
 
-    switch (period) {
+    // Apply time period filter
+    switch (filterPeriod) {
       case "today":
-        filtered = tickets.filter((ticket) => {
+        filtered = filtered.filter((ticket) => {
           const ticketDate = new Date(ticket.date);
           return ticketDate.toDateString() === now.toDateString();
         });
@@ -82,7 +107,7 @@ const Profit = () => {
 
       case "week":
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        filtered = tickets.filter((ticket) => {
+        filtered = filtered.filter((ticket) => {
           const ticketDate = new Date(ticket.date);
           return ticketDate >= weekAgo;
         });
@@ -90,17 +115,54 @@ const Profit = () => {
 
       case "month":
         const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        filtered = tickets.filter((ticket) => {
+        filtered = filtered.filter((ticket) => {
           const ticketDate = new Date(ticket.date);
           return ticketDate >= monthAgo;
         });
         break;
 
       default:
-        filtered = tickets;
+        // All time
+        break;
+    }
+
+    // Apply bet type filter
+    switch (filterType) {
+      case "free":
+        filtered = filtered.filter((ticket) =>
+          ticket.betType === "free" && !ticket.isPremiumBet
+        );
+        break;
+
+
+      case "pool_5":
+      case "pool_10":
+      case "pool_15":
+      case "pool_30":
+        filtered = filtered.filter((ticket) =>
+          ticket.vipPoolId === filterType
+        );
+        break;
+
+      default:
+        // All types
+        break;
     }
 
     setFilteredTickets(filtered);
+  };
+
+  // Apply filters whenever tickets, filterPeriod, or filterType changes
+  useEffect(() => {
+    applyFilters();
+  }, [tickets, filterPeriod, filterType]);
+
+  const filterTickets = (period) => {
+    setFilterPeriod(period);
+  };
+
+  const filterByType = (type) => {
+    setFilterType(type);
   };
 
   const clearHistory = async () => {
@@ -113,7 +175,7 @@ const Profit = () => {
     if (confirmed) {
       try {
         const { error } = await supabase
-          .from('bets')
+          .from('predictions')
           .delete()
           .eq('user_id', user.id);
 
@@ -174,6 +236,23 @@ const Profit = () => {
             <Calendar size={16} />
             This Month
           </button>
+        </div>
+
+        {/* Bet Type Filter */}
+        <div className="bet-type-filters">
+          <button
+            className={`filter-btn secondary ${filterType === "all" ? "active" : ""}`}
+            onClick={() => filterByType("all")}
+          >
+            All Bets
+          </button>
+          <button
+            className={`filter-btn secondary ${filterType === "free" ? "active" : ""}`}
+            onClick={() => filterByType("free")}
+          >
+            🆓 Free League
+          </button>
+          {/* TODO: Add custom league filters when Your Leagues system is implemented */}
         </div>
       </div>
 

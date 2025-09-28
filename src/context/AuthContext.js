@@ -194,9 +194,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = !!user;
-  const isPremium = profile?.role === 'premium' &&
+  const isPremium = (profile?.role === 'pro' || profile?.role === 'max') &&
                    profile?.premium_expires_at &&
                    new Date(profile.premium_expires_at) > new Date();
+  const isPro = profile?.role === 'pro' &&
+                profile?.premium_expires_at &&
+                new Date(profile.premium_expires_at) > new Date();
+  const isMax = profile?.role === 'max' &&
+                profile?.premium_expires_at &&
+                new Date(profile.premium_expires_at) > new Date();
 
   const value = {
     user,
@@ -204,6 +210,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated,
     isPremium,
+    isPro,
+    isMax,
     signUp,
     signIn,
     signOut,

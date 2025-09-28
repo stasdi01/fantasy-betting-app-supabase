@@ -1,0 +1,373 @@
+.recent-predictions-container {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-header svg {
+  color: #8a2be2;
+  flex-shrink: 0;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.section-header p {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+}
+
+/* Loading State */
+.loading-predictions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prediction-skeleton {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-header {
+  height: 20px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.skeleton-content {
+  height: 40px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Empty State */
+.empty-predictions {
+  text-align: center;
+  padding: 40px 20px;
+  color: #b0b0b0;
+}
+
+.empty-predictions svg {
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.empty-predictions h3 {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.empty-predictions p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Predictions List */
+.predictions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prediction-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.prediction-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(75, 0, 130, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.prediction-card:hover::before {
+  opacity: 1;
+}
+
+.prediction-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(138, 43, 226, 0.15);
+}
+
+/* Status-based styling */
+.prediction-card.won {
+  border-left: 4px solid #00ff88;
+}
+
+.prediction-card.lost {
+  border-left: 4px solid #ff4757;
+}
+
+.prediction-card.pending {
+  border-left: 4px solid #ffa502;
+}
+
+/* Prediction Header */
+.prediction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.performer-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.performer-rank {
+  background: linear-gradient(135deg, #8a2be2, #4b0082);
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: center;
+}
+
+.performer-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.performer-name {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.performer-profit {
+  font-size: 0.8rem;
+  color: #00ff88;
+  font-weight: 500;
+}
+
+.performer-profit:has-text("-") {
+  color: #ff4757;
+}
+
+.prediction-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-icon.won,
+.prediction-status:has(.status-icon.won) {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.status-icon.lost,
+.prediction-status:has(.status-icon.lost) {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.status-icon.pending,
+.prediction-status:has(.status-icon.pending) {
+  color: #ffa502;
+  background: rgba(255, 165, 2, 0.1);
+  border: 1px solid rgba(255, 165, 2, 0.2);
+}
+
+/* Prediction Content */
+.prediction-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prediction-type {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.type-label {
+  font-size: 0.8rem;
+  color: #8a2be2;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prediction-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #b0b0b0;
+}
+
+.prediction-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-info,
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.match-info strong,
+.player-info strong {
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.prediction-choice {
+  color: #8a2be2;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.prediction-description {
+  color: #d0d0d0;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.prediction-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stake-info,
+.return-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stake-label,
+.return-label {
+  font-size: 0.8rem;
+  color: #b0b0b0;
+}
+
+.stake-amount {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.return-amount {
+  font-weight: 600;
+  color: #00ff88;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .recent-predictions-container {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .prediction-card {
+    padding: 16px;
+  }
+
+  .prediction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .prediction-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .recent-predictions-container {
+    padding: 12px;
+  }
+
+  .prediction-card {
+    padding: 12px;
+  }
+
+  .performer-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .prediction-type {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

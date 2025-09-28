@@ -15,7 +15,7 @@ import {
 
 export const useFreeLeague = () => {
   const { profile } = useAuth();
-  const { freeProfit } = useBudget();
+  const { betLeagueProfit } = useBudget();
   const [loading, setLoading] = useState(true);
 
   // User's league data (would come from backend)
@@ -35,10 +35,10 @@ export const useFreeLeague = () => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      // Use actual freeProfit from useBudget
+      // Use actual betLeagueProfit from useBudget
       setUserLeagueData(prev => ({
         ...prev,
-        monthlyProfit: freeProfit,
+        monthlyProfit: betLeagueProfit,
         // Mock other data for now
         bets: Math.floor(Math.random() * 50) + 10,
         winRate: Math.random() * 30 + 45
@@ -48,7 +48,7 @@ export const useFreeLeague = () => {
     };
 
     loadUserLeagueData();
-  }, [freeProfit]);
+  }, [betLeagueProfit]);
 
   // Calculate user's position in current rank
   const getUserPositionInRank = useMemo(() => {

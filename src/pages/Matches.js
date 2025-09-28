@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Target, Trophy } from "lucide-react";
+import { Target, Trophy, Zap } from "lucide-react";
 import MatchCard from "../components/Matches/MatchCard";
 import SkeletonCard from "../components/Loading/SkeletonCard";
 import { matchesData, randomizeOdds } from "../data/matchesData";
@@ -10,6 +10,7 @@ const Matches = ({ cartItems, setCartItems }) => {
   const [matches, setMatches] = useState({
     football: [],
     basketball: [],
+    tennis: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -31,9 +32,15 @@ const Matches = ({ cartItems, setCartItems }) => {
         odds: randomizeOdds(match.odds),
       }));
 
+      const tennisWithRandomOdds = matchesData.tennis.map((match) => ({
+        ...match,
+        odds: randomizeOdds(match.odds),
+      }));
+
       setMatches({
         football: footballWithRandomOdds,
         basketball: basketballWithRandomOdds,
+        tennis: tennisWithRandomOdds,
       });
 
       setLoading(false);
@@ -110,6 +117,15 @@ const Matches = ({ cartItems, setCartItems }) => {
           <Trophy size={20} />
           <span>Basketball</span>
           <span className="match-count">{matches.basketball.length}</span>
+        </button>
+
+        <button
+          className={`tab-button ${activeTab === "tennis" ? "active" : ""}`}
+          onClick={() => setActiveTab("tennis")}
+        >
+          <Zap size={20} />
+          <span>Tennis</span>
+          <span className="match-count">{matches.tennis.length}</span>
         </button>
       </div>
 

@@ -77,7 +77,10 @@ export const validateForm = (formData, validationRules) => {
     const value = formData[field];
 
     if (typeof validator === 'function') {
-      const error = validator(value);
+      // For confirmPassword, pass both the value and the entire formData
+      const error = field === 'confirmPassword'
+        ? validator(value, formData)
+        : validator(value);
       if (error) {
         errors[field] = error;
       }
@@ -106,4 +109,9 @@ export const registerValidationRules = {
 
 export const stakeValidationRules = {
   stake: (stake, availableBudget) => validateStake(stake, availableBudget)
+};
+
+export const profileValidationRules = {
+  username: validateUsername,
+  email: validateEmail
 };
