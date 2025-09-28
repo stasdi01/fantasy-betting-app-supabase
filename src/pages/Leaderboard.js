@@ -1,35 +1,185 @@
-import React, { useState } from "react";
-import { Trophy, TrendingUp, Target, Users, Medal, Crown, Award, Calendar } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { useFreeLeague } from "../hooks/useFreeLeague";
-import SkeletonCard from "../components/Loading/SkeletonCard";
-import "../styles/Leaderboard.css";
+import React, { useState, useEffect } from 'react';
+import { Trophy, Crown, Medal, Target, TrendingUp, Calendar, Award, Star, Flame } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import LoadingSpinner from '../components/Loading/LoadingSpinner';
+import '../styles/Leaderboard.css';
+
+// Mock data for top 10 all-time players
+const allTimeLeaderboardData = [
+  {
+    id: 1,
+    username: "BetKing2024",
+    avatar: "👑",
+    totalProfit: 2847.6,
+    totalBets: 1250,
+    winRate: 68.4,
+    bestStreak: 23,
+    joinDate: "2023-01-15",
+    badge: "legend",
+    specialTitle: "Betting Legend"
+  },
+  {
+    id: 2,
+    username: "OddsMaster",
+    avatar: "🔥",
+    totalProfit: 2156.3,
+    totalBets: 980,
+    winRate: 72.1,
+    bestStreak: 19,
+    joinDate: "2023-03-22",
+    badge: "master",
+    specialTitle: "Prediction Master"
+  },
+  {
+    id: 3,
+    username: "GoldenBetter",
+    avatar: "⚡",
+    totalProfit: 1923.8,
+    totalBets: 875,
+    winRate: 69.7,
+    bestStreak: 16,
+    joinDate: "2023-02-08",
+    badge: "elite",
+    specialTitle: "Elite Predictor"
+  },
+  {
+    id: 4,
+    username: "SportsSage",
+    avatar: "🎯",
+    totalProfit: 1567.2,
+    totalBets: 720,
+    winRate: 71.3,
+    bestStreak: 15,
+    joinDate: "2023-04-12",
+    badge: "expert",
+    specialTitle: "Sports Expert"
+  },
+  {
+    id: 5,
+    username: "PredictionPro",
+    avatar: "💎",
+    totalProfit: 1342.9,
+    totalBets: 650,
+    winRate: 67.8,
+    bestStreak: 18,
+    joinDate: "2023-05-30",
+    badge: "pro",
+    specialTitle: "Pro Analyst"
+  },
+  {
+    id: 6,
+    username: "LuckyStrike",
+    avatar: "🌟",
+    totalProfit: 1187.5,
+    totalBets: 590,
+    winRate: 66.2,
+    bestStreak: 12,
+    joinDate: "2023-06-18",
+    badge: "skilled",
+    specialTitle: "Lucky Striker"
+  },
+  {
+    id: 7,
+    username: "WinStreak",
+    avatar: "🏆",
+    totalProfit: 1045.7,
+    totalBets: 520,
+    winRate: 70.4,
+    bestStreak: 21,
+    joinDate: "2023-07-03",
+    badge: "skilled",
+    specialTitle: "Streak Master"
+  },
+  {
+    id: 8,
+    username: "BetGenius",
+    avatar: "🧠",
+    totalProfit: 892.4,
+    totalBets: 480,
+    winRate: 68.9,
+    bestStreak: 14,
+    joinDate: "2023-08-15",
+    badge: "talented",
+    specialTitle: "Betting Genius"
+  },
+  {
+    id: 9,
+    username: "ChampPlayer",
+    avatar: "🥇",
+    totalProfit: 764.3,
+    totalBets: 420,
+    winRate: 65.7,
+    bestStreak: 11,
+    joinDate: "2023-09-22",
+    badge: "talented",
+    specialTitle: "Champion"
+  },
+  {
+    id: 10,
+    username: "TopShooter",
+    avatar: "🎰",
+    totalProfit: 643.8,
+    totalBets: 380,
+    winRate: 64.2,
+    bestStreak: 10,
+    joinDate: "2023-10-08",
+    badge: "rising",
+    specialTitle: "Rising Star"
+  }
+];
+
+const getBadgeColor = (badge) => {
+  const colors = {
+    legend: 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+    master: 'linear-gradient(135deg, #a55eea, #8854d0)',
+    elite: 'linear-gradient(135deg, #26de81, #20bf6b)',
+    expert: 'linear-gradient(135deg, #fed330, #f7b731)',
+    pro: 'linear-gradient(135deg, #45aaf2, #2d98da)',
+    skilled: 'linear-gradient(135deg, #fd79a8, #e84393)',
+    talented: 'linear-gradient(135deg, #fdcb6e, #e17055)',
+    rising: 'linear-gradient(135deg, #6c5ce7, #a29bfe)'
+  };
+  return colors[badge] || 'linear-gradient(135deg, var(--primary), var(--primary-light))';
+};
 
 const Leaderboard = () => {
   const { profile } = useAuth();
-  const {
-    userLeagueData,
-    userRankConfig,
-    userPositionInRank,
-    userOverallPosition,
-    leagueStats,
-    currentMonthLeaderboard,
-    monthlyWinners,
-    statusMessage,
-    currentMonth,
-    loading
-  } = useFreeLeague();
-  const [filterPeriod, setFilterPeriod] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [leaderboardData, setLeaderboardData] = useState([]);
 
+  useEffect(() => {
+    // Simulate loading delay
+    const loadData = async () => {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Add current user indicator
+      const dataWithUserFlag = allTimeLeaderboardData.map(player => ({
+        ...player,
+        isCurrentUser: profile?.username === player.username
+      }));
+
+      setLeaderboardData(dataWithUserFlag);
+      setLoading(false);
+    };
+
+    loadData();
+  }, [profile]);
 
   const getProfitColor = (profit) => {
     return profit >= 0 ? "var(--success)" : "var(--danger)";
   };
 
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'short',
+      year: 'numeric'
+    });
+  };
 
   return (
     <div className="leaderboard-container">
-      {/* Modern Header */}
+      {/* Header */}
       <div className="modern-header">
         <div className="header-background">
           <div className="gradient-circle circle-1"></div>
@@ -43,184 +193,160 @@ const Leaderboard = () => {
               <Trophy size={40} className="main-icon" />
             </div>
             <div className="title-text">
-              <h1>Free League</h1>
-              <p>Compete with the best bettors worldwide</p>
+              <h1>All-Time Leaderboard</h1>
+              <p>Hall of Fame - Top 10 greatest bettors of all time</p>
             </div>
           </div>
 
-          {/* User League Status */}
-          <div className="user-league-status">
-            <div className="rank-display">
-              <div className="rank-icon" style={{ background: userRankConfig.gradient }}>
-                <span className="rank-emoji">{userRankConfig.icon}</span>
-              </div>
-              <div className="rank-info">
-                <h3 className="rank-title">{userRankConfig.name} League</h3>
-                <p className="rank-position">Position #{userPositionInRank} in rank</p>
-                <p className="overall-position">#{userOverallPosition} overall</p>
-              </div>
-            </div>
-            <div className="status-message" style={{ borderColor: `var(--${statusMessage.color})` }}>
-              <p style={{ color: `var(--${statusMessage.color})` }}>{statusMessage.message}</p>
-            </div>
-          </div>
-
-          {/* League Stats */}
-          <div className="league-stats-grid">
-            <div className="stat-item">
-              <Users size={20} />
+          <div className="stats-showcase">
+            <div className="showcase-stat">
+              <Crown size={24} />
               <div>
-                <span className="stat-value">{leagueStats.total.toLocaleString()}</span>
-                <span className="stat-label">Total Players</span>
+                <span className="stat-value">Top 10</span>
+                <span className="stat-label">Elite Players</span>
               </div>
             </div>
-            <div className="stat-item">
-              <Target size={20} />
+            <div className="showcase-stat">
+              <TrendingUp size={24} />
               <div>
-                <span className="stat-value">{userLeagueData.winRate.toFixed(1)}%</span>
-                <span className="stat-label">Your Win Rate</span>
+                <span className="stat-value">{leaderboardData[0]?.totalProfit.toFixed(1)}%</span>
+                <span className="stat-label">Highest Profit</span>
               </div>
             </div>
-            <div className="stat-item">
-              <Medal size={20} />
+            <div className="showcase-stat">
+              <Target size={24} />
               <div>
-                <span className="stat-value">{userLeagueData.bets}</span>
-                <span className="stat-label">Your Bets</span>
+                <span className="stat-value">{leaderboardData[1]?.winRate.toFixed(1)}%</span>
+                <span className="stat-label">Best Win Rate</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* League Ranks Overview */}
-      <div className="league-ranks-overview">
-        <h2 className="section-subtitle">Free League Ranks</h2>
-        <div className="ranks-grid">
-          {[
-            { rank: 'bronze', name: 'Bronze', icon: '🥉', count: leagueStats.bronze },
-            { rank: 'silver', name: 'Silver', icon: '🥈', count: leagueStats.silver },
-            { rank: 'gold', name: 'Gold', icon: '🥇', count: leagueStats.gold },
-            { rank: 'platinum', name: 'Platinum', icon: '💎', count: leagueStats.platinum },
-            { rank: 'diamond', name: 'Diamond', icon: '💍', count: leagueStats.diamond }
-          ].map(({ rank, name, icon, count }) => (
-            <div key={rank} className={`rank-card ${userLeagueData.currentRank === rank ? 'current-rank' : ''}`}>
-              <div className="rank-icon-small">{icon}</div>
-              <h4 className="rank-name">{name}</h4>
-              <p className="rank-count">{count.toLocaleString()} players</p>
-              {userLeagueData.currentRank === rank && <span className="current-badge">You are here</span>}
-              {userLeagueData.currentRank === rank && (
-                <div className="rank-position-info">
-                  <span className="position-text">Position #{userPositionInRank}</span>
-                  <span className="promotion-text">
-                    {userPositionInRank <= 3 ? 'Promotion Zone! 🔥' :
-                     userPositionInRank > count - 3 && rank !== 'bronze' ? 'Danger Zone ⚠️' :
-                     `${4 - userPositionInRank > 0 ? 4 - userPositionInRank : 0} spots to Top 3`}
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Leaderboard List */}
+      {/* Leaderboard Content */}
       <div className="leaderboard-content">
         <div className="section-title">
-          <TrendingUp size={24} />
-          <h2>Top Players - {currentMonth}</h2>
-          <span className="period-badge">Monthly Leaderboard</span>
+          <Medal size={24} />
+          <h2>Hall of Fame</h2>
+          <span className="period-badge">All-Time Rankings</span>
         </div>
 
         {loading ? (
-          <div className="leaderboard-list">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <SkeletonCard key={index} type="leaderboard" />
-            ))}
+          <div className="loading-container">
+            <LoadingSpinner size="lg" />
+            <p>Loading Hall of Fame...</p>
           </div>
         ) : (
-          <>
-            <div className="leaderboard-by-ranks">
-              {[
-                { rank: 'diamond', name: 'Diamond', icon: '💍', color: '#b9f2ff' },
-                { rank: 'platinum', name: 'Platinum', icon: '💎', color: '#e5e4e2' },
-                { rank: 'gold', name: 'Gold', icon: '🥇', color: '#ffd700' },
-                { rank: 'silver', name: 'Silver', icon: '🥈', color: '#c0c0c0' },
-                { rank: 'bronze', name: 'Bronze', icon: '🥉', color: '#cd7f32' }
-              ].map(({ rank, name, icon, color }) => {
-                const rankPlayers = currentMonthLeaderboard.filter(player => player.rank === rank);
-
-                if (rankPlayers.length === 0) return null;
-
-                return (
-                  <div key={rank} className="rank-leaderboard-section">
-                    <div className="rank-section-header" style={{ borderColor: color }}>
-                      <div className="rank-title-wrapper">
-                        <span className="rank-icon-header">{icon}</span>
-                        <h3 className="rank-title">{name} League</h3>
-                        <span className="rank-count">{leagueStats[rank]} players</span>
+          <div className="all-time-leaderboard">
+            {/* Top 3 Podium */}
+            <div className="podium-section">
+              <h3 className="podium-title">
+                <Star size={20} />
+                Top 3 Champions
+              </h3>
+              <div className="podium">
+                {leaderboardData.slice(0, 3).map((player, index) => (
+                  <div key={player.id} className={`podium-player position-${index + 1} ${player.isCurrentUser ? 'current-user' : ''}`}>
+                    <div className="podium-rank">
+                      {index === 0 && <Crown size={24} className="crown" />}
+                      {index === 1 && <Medal size={24} className="silver" />}
+                      {index === 2 && <Award size={24} className="bronze" />}
+                    </div>
+                    <div className="podium-avatar">{player.avatar}</div>
+                    <div className="podium-info">
+                      <h4 className="podium-username">
+                        {player.username}
+                        {player.isCurrentUser && <span className="you-badge">You</span>}
+                      </h4>
+                      <div className="podium-badge" style={{ background: getBadgeColor(player.badge) }}>
+                        {player.specialTitle}
                       </div>
-                    </div>
-
-                    <div className="rank-players">
-                      {rankPlayers.map((player) => (
-                        <div key={player.id} className={`leaderboard-card rank-card-${rank} ${player.isCurrentUser ? "current-user" : ""}`}>
-                          <div className="rank-section">
-                            <span className="rank-position">#{player.rankPosition}</span>
-                          </div>
-
-                          <div className="player-info">
-                            <div className="avatar">{player.avatar}</div>
-                            <div className="player-details">
-                              <h3 className="username">
-                                {player.username}
-                                {player.isCurrentUser && <span className="you-badge">You</span>}
-                              </h3>
-                              <div className="stats-row">
-                                <span className="bet-count">{player.bets} bets</span>
-                                <span className="win-rate">{player.winRate.toFixed(1)}% win rate</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="profit-section">
-                            <span
-                              className="profit-value"
-                              style={{ color: getProfitColor(player.profit) }}
-                            >
-                              {player.profit >= 0 ? "+" : ""}{player.profit.toFixed(1)}%
-                            </span>
-                            <span className="profit-label">Profit</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Monthly Winners History */}
-            <div className="monthly-winners-section">
-              <div className="winners-header">
-                <Crown size={24} />
-                <h3>Diamond Rank Winners</h3>
-              </div>
-              <div className="winners-grid">
-                {monthlyWinners.slice(0, 6).map(({ monthKey, monthName, year, winner }) => (
-                  <div key={monthKey} className="winner-card">
-                    <div className="winner-month">
-                      <Calendar size={16} />
-                      <span>{monthName} {year}</span>
-                    </div>
-                    <div className="winner-name">
-                      <Award size={16} />
-                      <span>{winner}</span>
+                      <div className="podium-profit" style={{ color: getProfitColor(player.totalProfit) }}>
+                        +{player.totalProfit.toFixed(1)}%
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </>
+
+            {/* Full Rankings */}
+            <div className="full-rankings">
+              <h3 className="rankings-title">
+                <TrendingUp size={20} />
+                Complete Rankings
+              </h3>
+              <div className="rankings-list">
+                {leaderboardData.map((player, index) => (
+                  <div key={player.id} className={`ranking-card ${player.isCurrentUser ? 'current-user' : ''} ${index < 3 ? 'top-three' : ''}`}>
+                    <div className="rank-position">
+                      <span className="rank-number">#{index + 1}</span>
+                      {index < 3 && (
+                        <div className="rank-medal">
+                          {index === 0 && <Crown size={16} />}
+                          {index === 1 && <Medal size={16} />}
+                          {index === 2 && <Award size={16} />}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="player-main-info">
+                      <div className="player-avatar-section">
+                        <div className="avatar-large">{player.avatar}</div>
+                        <div className="player-details">
+                          <h4 className="player-username">
+                            {player.username}
+                            {player.isCurrentUser && <span className="you-badge">You</span>}
+                          </h4>
+                          <div className="player-badge" style={{ background: getBadgeColor(player.badge) }}>
+                            {player.specialTitle}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="player-stats">
+                      <div className="stat-group">
+                        <div className="stat-item">
+                          <span className="stat-label">Total Profit</span>
+                          <span className="stat-value profit" style={{ color: getProfitColor(player.totalProfit) }}>
+                            +{player.totalProfit.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Win Rate</span>
+                          <span className="stat-value">{player.winRate.toFixed(1)}%</span>
+                        </div>
+                      </div>
+                      <div className="stat-group">
+                        <div className="stat-item">
+                          <span className="stat-label">Total Bets</span>
+                          <span className="stat-value">{player.totalBets.toLocaleString()}</span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Best Streak</span>
+                          <span className="stat-value">
+                            {player.bestStreak}
+                            <Flame size={14} className="streak-icon" />
+                          </span>
+                        </div>
+                      </div>
+                      <div className="stat-group">
+                        <div className="stat-item">
+                          <span className="stat-label">Member Since</span>
+                          <span className="stat-value">
+                            <Calendar size={14} />
+                            {formatDate(player.joinDate)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

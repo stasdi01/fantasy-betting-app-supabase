@@ -18,6 +18,7 @@ import Profit from "./pages/Profit";
 import MyTeam from "./pages/MyTeam";
 import PublicLeague from "./pages/PublicLeague";
 import YourLeagues from "./pages/YourLeagues";
+import LeagueDetail from "./pages/LeagueDetail";
 import Leaderboard from "./pages/Leaderboard";
 import VipTeam from "./pages/VipTeam";
 import Premium from "./pages/Premium";
@@ -72,6 +73,7 @@ const AppContent = () => {
           <Route path="/myteam" element={<MyTeam />} />
           <Route path="/public-league" element={<PublicLeague />} />
           <Route path="/your-leagues" element={<YourLeagues />} />
+          <Route path="/league/:leagueId" element={<LeagueDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/vip-team" element={<VipTeam />} />
           <Route path="/premium" element={<Premium />} />

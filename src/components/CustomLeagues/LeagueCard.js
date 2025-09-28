@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Users, Crown, Lock, Unlock, Trophy, Target, Trash2, LogOut, UserPlus } from 'lucide-react';
+import { Users, Crown, Lock, Unlock, Trophy, Target, Trash2, LogOut, UserPlus, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../Toast/ToastProvider';
 import { useConfirm } from '../Toast/ConfirmDialog';
@@ -10,6 +11,7 @@ const LeagueCard = ({ league, isOwner = false, isMember = false, onJoin, onLeave
   const { user } = useAuth();
   const { success, error: showError } = useToast();
   const { confirm } = useConfirm();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const memberCount = league.league_memberships?.[0]?.count || 0;
@@ -144,6 +146,17 @@ const LeagueCard = ({ league, isOwner = false, isMember = false, onJoin, onLeave
           </div>
         ) : (
           <>
+            {/* Show View button for members, owners, and public leagues */}
+            {(isMember || isOwner || league.is_public) && (
+              <button
+                onClick={() => navigate(`/league/${league.id}`)}
+                className="action-btn view"
+              >
+                <Eye size={16} />
+                {isMember || isOwner ? 'View League' : 'View & Join'}
+              </button>
+            )}
+
             {isOwner ? (
               <button
                 onClick={handleDelete}
@@ -151,7 +164,7 @@ const LeagueCard = ({ league, isOwner = false, isMember = false, onJoin, onLeave
                 disabled={loading}
               >
                 <Trash2 size={16} />
-                Delete League
+                Delete
               </button>
             ) : isMember ? (
               <button
@@ -160,7 +173,7 @@ const LeagueCard = ({ league, isOwner = false, isMember = false, onJoin, onLeave
                 disabled={loading}
               >
                 <LogOut size={16} />
-                Leave League
+                Leave
               </button>
             ) : (
               <button

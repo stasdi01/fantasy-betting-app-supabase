@@ -14,10 +14,7 @@ const CreateLeagueModal = ({ isOpen, onClose, onLeagueCreated, maxLeagues, maxMe
     description: '',
     league_type: 'bet', // 'bet' or 'myteam'
     is_public: true,
-    max_members: maxMembers || 10,
-    min_members: 2,
-    entry_fee: 0,
-    rules: ''
+    max_members: maxMembers || 10
   });
 
   const [loading, setLoading] = useState(false);
@@ -38,12 +35,8 @@ const CreateLeagueModal = ({ isOpen, onClose, onLeagueCreated, maxLeagues, maxMe
       newErrors.description = 'Description must be less than 200 characters';
     }
 
-    if (formData.max_members < formData.min_members) {
-      newErrors.max_members = 'Maximum members must be greater than minimum members';
-    }
-
-    if (formData.min_members < 2) {
-      newErrors.min_members = 'Minimum members must be at least 2';
+    if (formData.max_members < 2) {
+      newErrors.max_members = 'Maximum members must be at least 2';
     }
 
     if (formData.max_members > maxMembers) {
@@ -71,10 +64,7 @@ const CreateLeagueModal = ({ isOpen, onClose, onLeagueCreated, maxLeagues, maxMe
         description: '',
         league_type: 'bet',
         is_public: true,
-        max_members: maxMembers || 10,
-        min_members: 2,
-        entry_fee: 0,
-        rules: ''
+        max_members: maxMembers || 10
       });
 
       onClose();
@@ -205,53 +195,22 @@ const CreateLeagueModal = ({ isOpen, onClose, onLeagueCreated, maxLeagues, maxMe
           </div>
 
           {/* Member Limits */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="min_members">Min Members</label>
-              <input
-                id="min_members"
-                type="number"
-                min="2"
-                max={formData.max_members}
-                value={formData.min_members}
-                onChange={(e) => handleChange('min_members', parseInt(e.target.value))}
-                className={errors.min_members ? 'error' : ''}
-                disabled={loading}
-              />
-              {errors.min_members && <span className="error-text">{errors.min_members}</span>}
-            </div>
-            <div className="form-group">
-              <label htmlFor="max_members">Max Members</label>
-              <input
-                id="max_members"
-                type="number"
-                min={formData.min_members}
-                max={maxMembers}
-                value={formData.max_members}
-                onChange={(e) => handleChange('max_members', parseInt(e.target.value))}
-                className={errors.max_members ? 'error' : ''}
-                disabled={loading}
-              />
-              {errors.max_members && <span className="error-text">{errors.max_members}</span>}
-              <small>Your plan allows up to {maxMembers} members</small>
-            </div>
+          <div className="form-group">
+            <label htmlFor="max_members">Max Members</label>
+            <input
+              id="max_members"
+              type="number"
+              min="2"
+              max={maxMembers}
+              value={formData.max_members}
+              onChange={(e) => handleChange('max_members', parseInt(e.target.value))}
+              className={errors.max_members ? 'error' : ''}
+              disabled={loading}
+            />
+            {errors.max_members && <span className="error-text">{errors.max_members}</span>}
+            <small>Your plan allows up to {maxMembers} members</small>
           </div>
 
-          {/* Rules (MAX users only) */}
-          {profile?.role === 'max' && (
-            <div className="form-group">
-              <label htmlFor="rules">Custom Rules</label>
-              <textarea
-                id="rules"
-                value={formData.rules}
-                onChange={(e) => handleChange('rules', e.target.value)}
-                placeholder="Define any special rules for your league (optional)"
-                rows={3}
-                disabled={loading}
-              />
-              <small>MAX users can customize league rules</small>
-            </div>
-          )}
 
           <div className="modal-actions">
             <button

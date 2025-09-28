@@ -98,15 +98,46 @@ export const useCustomLeagues = () => {
 
       if (error) throw error;
 
-      // Automatically join the creator as a member
-      await joinLeague(data.id);
+      // Automatically join the creator as a member (direct insert to avoid duplicate check)
+      const { error: membershipError } = await supabase
+        .from('league_memberships')
+        .insert([{
+          league_id: data.id,
+          user_id: user.id,
+          joined_at: new Date().toISOString()
+        }]);
+
+      if (membershipError) throw membershipError;
 
       await fetchData();
       return data;
     } catch (error) {
       console.error('Error creating league:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        details: error?.details,
+        hint: error?.hint,
+        stack: error?.stack
+      });
       logError(error, 'useCustomLeagues.createLeague');
-      throw new Error(getErrorMessage(error));
+
+      // More specific error messages
+      if (error?.message?.includes('relation') && error?.message?.includes('does not exist')) {
+        throw new Error('Database tables are not set up correctly. Please contact support.');
+      }
+      if (error?.code === '42P01') {
+        throw new Error('Required database tables are missing. Please contact support.');
+      }
+      if (error?.code === '23505') {
+        throw new Error('A league with this name already exists. Please choose a different name.');
+      }
+      if (error?.message?.includes('permission') || error?.code === '42501') {
+        throw new Error('You do not have permission to create leagues. Please check your subscription.');
+      }
+
+      throw new Error(error?.message || getErrorMessage(error));
     } finally {
       setCreating(false);
     }

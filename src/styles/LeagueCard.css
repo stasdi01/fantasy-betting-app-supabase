@@ -151,6 +151,7 @@
 
 .league-actions {
   display: flex;
+  gap: 0.5rem;
   justify-content: flex-end;
 }
 
@@ -205,6 +206,16 @@
 
 .action-btn.delete:hover:not(:disabled) {
   background: var(--danger-dark);
+  transform: translateY(-1px);
+}
+
+.action-btn.view {
+  background: var(--success);
+  color: white;
+}
+
+.action-btn.view:hover:not(:disabled) {
+  background: var(--success-dark);
   transform: translateY(-1px);
 }
 
