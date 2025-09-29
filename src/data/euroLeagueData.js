@@ -478,6 +478,55 @@ export const mockPlayerRoundPredictions = mockEuroLeaguePlayers.map(player => ({
   rebounds_under_odds: 1.85 + (Math.random() * 0.35)
 }));
 
+// Mock odds for player predictions with fixed thresholds
+// 15+ points, 5+ assists, 8+ rebounds
+export const mockPlayerOdds = {
+  // Generate odds for each player based on their performance
+  ...Object.fromEntries(
+    mockEuroLeaguePlayers.map(player => [
+      player.id,
+      {
+        points: {
+          threshold: 15,
+          odds: Math.round(Math.max(1.50, Math.min(3.50,
+            player.season_averages.points >= 18 ? 1.60 + Math.random() * 0.30 :
+            player.season_averages.points >= 15 ? 1.80 + Math.random() * 0.40 :
+            player.season_averages.points >= 12 ? 2.20 + Math.random() * 0.60 :
+            2.80 + Math.random() * 0.70
+          )) * 100) / 100
+        },
+        assists: {
+          threshold: 5,
+          odds: Math.round(Math.max(1.50, Math.min(3.50,
+            player.season_averages.assists >= 7 ? 1.70 + Math.random() * 0.30 :
+            player.season_averages.assists >= 5 ? 1.90 + Math.random() * 0.40 :
+            player.season_averages.assists >= 3 ? 2.40 + Math.random() * 0.60 :
+            3.00 + Math.random() * 0.50
+          )) * 100) / 100
+        },
+        rebounds: {
+          threshold: 8,
+          odds: Math.round(Math.max(1.50, Math.min(3.50,
+            player.season_averages.rebounds >= 10 ? 1.65 + Math.random() * 0.25 :
+            player.season_averages.rebounds >= 8 ? 1.85 + Math.random() * 0.35 :
+            player.season_averages.rebounds >= 6 ? 2.30 + Math.random() * 0.50 :
+            2.90 + Math.random() * 0.60
+          )) * 100) / 100
+        }
+      }
+    ])
+  )
+};
+
+// Helper function to get player odds
+export const getPlayerOdds = (playerId) => {
+  return mockPlayerOdds[playerId] || {
+    points: { threshold: 15, odds: 2.00 },
+    assists: { threshold: 5, odds: 2.50 },
+    rebounds: { threshold: 8, odds: 2.20 }
+  };
+};
+
 // Helper functions
 export const getPlayersByPosition = (position) => {
   return mockEuroLeaguePlayers.filter(player => player.position === position);

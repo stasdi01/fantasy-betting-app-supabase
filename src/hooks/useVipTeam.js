@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { getErrorMessage, logError } from '../utils/errorHandler';
+import { logError } from '../utils/errorHandler';
 
 // Mock data functions
 const getMockTopPerformers = () => [

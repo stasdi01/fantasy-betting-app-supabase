@@ -9,7 +9,7 @@ import "../styles/Layout.css";
 const Layout = ({ children }) => {
   const location = useLocation();
   const { profile, signOut, isPremium } = useAuth();
-  const { betLeagueProfit, loading } = useBudget();
+  const { betLeagueProfit, myTeamLeagueProfit, loading } = useBudget();
 
   const navItems = [
     { path: "/matches", icon: Home, label: "Matches" },
@@ -24,31 +24,50 @@ const Layout = ({ children }) => {
     { path: "/rules", icon: BookOpen, label: "Rules" },
   ];
 
-  // Display current month BetLeague profit only
+  // Display both BetLeague and MyTeam profits
   const getProfitDisplay = () => {
     if (loading) {
       return (
-        <span className="user-balance">
-          <div className="loading-skeleton" style={{ width: '80px', height: '1rem', display: 'inline-block' }}></div>
-        </span>
+        <div className="profits-container">
+          <div className="loading-skeleton" style={{ width: '120px', height: '1rem', display: 'inline-block' }}></div>
+        </div>
       );
     }
 
-    const currentProfit = Math.round(betLeagueProfit * 100) / 100; // Round to 2 decimal places
-    const profitPercent = currentProfit.toFixed(2);
-    const isNegative = currentProfit < 0;
-    const isBlocked = betLeagueProfit <= -100;
+    const betLeagueCurrentProfit = Math.round(betLeagueProfit * 100) / 100;
+    const myTeamCurrentProfit = Math.round(myTeamLeagueProfit * 100) / 100;
+
+    const betLeagueProfitPercent = betLeagueCurrentProfit.toFixed(2);
+    const myTeamProfitPercent = myTeamCurrentProfit.toFixed(2);
+
+    const betLeagueIsNegative = betLeagueCurrentProfit < 0;
+    const myTeamIsNegative = myTeamCurrentProfit < 0;
+
+    const betLeagueIsBlocked = betLeagueProfit <= -100;
+    const myTeamIsBlocked = myTeamLeagueProfit <= -100;
 
     return (
-      <span
-        className={`user-balance ${isNegative ? "negative" : "positive"} ${
-          isBlocked ? "blocked" : ""
-        }`}
-        title={`BetLeague Monthly Profit: ${betLeagueProfit.toFixed(2)}%`}
-      >
-        BetLeague: {isNegative ? "" : "+"}
-        {profitPercent}%
-      </span>
+      <div className="profits-container">
+        <span
+          className={`profit-item ${betLeagueIsNegative ? "negative" : "positive"} ${
+            betLeagueIsBlocked ? "blocked" : ""
+          }`}
+          title={`BetLeague Monthly Profit: ${betLeagueProfit.toFixed(2)}%`}
+        >
+          BetLeague: {betLeagueIsNegative ? "" : "+"}
+          {betLeagueProfitPercent}%
+        </span>
+        <span className="profit-separator">|</span>
+        <span
+          className={`profit-item ${myTeamIsNegative ? "negative" : "positive"} ${
+            myTeamIsBlocked ? "blocked" : ""
+          }`}
+          title={`MyTeam Season Profit: ${myTeamLeagueProfit.toFixed(2)}%`}
+        >
+          MyTeam: {myTeamIsNegative ? "" : "+"}
+          {myTeamProfitPercent}%
+        </span>
+      </div>
     );
   };
 

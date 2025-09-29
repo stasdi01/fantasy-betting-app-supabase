@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, ArrowLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useConfirm } from "../components/Toast/ConfirmDialog";
@@ -125,7 +125,7 @@ const Profit = () => {
     };
 
     fetchBets();
-  }, [user]);
+  }, [user, showError]);
 
   // Listen for custom leagues updates to refresh joined leagues
   useEffect(() => {
@@ -140,7 +140,7 @@ const Profit = () => {
     return () => window.removeEventListener('custom-leagues-updated', handleCustomLeaguesUpdate);
   }, [refreshData]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     // If a month is selected, filter tickets for that month
     let filtered = selectedMonth ? monthlyData[selectedMonth]?.tickets || [] : [...tickets];
 
@@ -165,12 +165,12 @@ const Profit = () => {
     }
 
     setFilteredTickets(filtered);
-  };
+  }, [selectedMonth, monthlyData, tickets, filterType]);
 
   // Apply filters whenever tickets, selectedMonth, or filterType changes
   useEffect(() => {
     applyFilters();
-  }, [tickets, selectedMonth, filterType, monthlyData]);
+  }, [applyFilters]);
 
   const selectMonth = (monthKey) => {
     setSelectedMonth(monthKey);

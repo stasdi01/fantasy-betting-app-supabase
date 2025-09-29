@@ -12,12 +12,13 @@ import {
   emptyRoster,
   getPlayersByPosition,
   getPlayerById,
-  getPlayerPredictions
+  getPlayerPredictions,
+  getPlayerOdds
 } from '../data/euroLeagueData';
 
 export const useMyTeam = (leagueId = null) => {
   const { user, profile } = useAuth();
-  const { getAvailableBudget, canPlaceTicket } = useBudget();
+  const { getAvailableBudget, canPlaceTicket, updateProfit } = useBudget();
 
   const [loading, setLoading] = useState(true);
   const [currentRoster, setCurrentRoster] = useState(emptyRoster);
@@ -683,6 +684,30 @@ export const useMyTeam = (leagueId = null) => {
     };
   };
 
+  // Calculate total stake and potential win for all predictions
+  const calculateTeamPredictionValue = () => {
+    let totalStake = 0;
+    let totalPotentialWin = 0;
+
+    Object.entries(currentRoster.predictions).forEach(([playerId, playerPreds]) => {
+      const playerOdds = getPlayerOdds(playerId);
+
+      Object.entries(playerPreds).forEach(([statType, pred]) => {
+        const stake = pred.stake || 0;
+        const odds = playerOdds[statType]?.odds || 1.5;
+        const potentialWin = stake * odds;
+
+        totalStake += stake;
+        totalPotentialWin += potentialWin;
+      });
+    });
+
+    return {
+      totalStake: Math.round(totalStake * 100) / 100,
+      totalPotentialWin: Math.round(totalPotentialWin * 100) / 100
+    };
+  };
+
   // Submit team for current round
   const submitTeam = async () => {
     console.log('=== SUBMITTING TEAM ===');
@@ -789,6 +814,46 @@ export const useMyTeam = (leagueId = null) => {
         }
 
         console.log('✅ Predictions saved:', predictionInserts.length, 'predictions');
+      }
+
+      // Calculate total prediction value and save to predictions table for profit tracking
+      const predictionValue = calculateTeamPredictionValue();
+      console.log('💰 Team prediction value:', predictionValue);
+
+      if (predictionValue.totalStake > 0) {
+        // Create a comprehensive team prediction entry for the MyTeam system
+        const teamData = {
+          starters: currentRoster.starters,
+          bench: currentRoster.bench,
+          predictions: currentRoster.predictions,
+          totalBudgetUsed: currentRoster.totalBudgetUsed
+        };
+
+        const { error: teamPredictionError } = await supabase
+          .from('predictions')
+          .insert({
+            user_id: user.id,
+            league_type: 'MyTeam',
+            total_odds: predictionValue.totalPotentialWin / predictionValue.totalStake, // Average odds
+            stake_amount: predictionValue.totalStake,
+            potential_return: predictionValue.totalPotentialWin,
+            status: 'pending',
+            match_data: {
+              round_id: currentRound.id,
+              roster_id: rosterData.id,
+              team_data: teamData,
+              prediction_count: predictionInserts.length
+            },
+            description: `MyTeam Round ${currentRound.round_number} - ${predictionInserts.length} player predictions`
+          });
+
+        if (teamPredictionError) {
+          console.error('❌ Team prediction save error:', teamPredictionError);
+          logError(teamPredictionError, 'useMyTeam.submitTeam.teamPrediction');
+          // Don't throw here - team was saved successfully, this is just for profit tracking
+        } else {
+          console.log('✅ Team prediction saved for profit tracking');
+        }
       }
 
       // Update local state to mark team as submitted
