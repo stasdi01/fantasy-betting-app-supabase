@@ -110,6 +110,10 @@ export const useCustomLeagues = () => {
       if (membershipError) throw membershipError;
 
       await fetchData();
+
+      // Dispatch event to notify components of league updates
+      window.dispatchEvent(new CustomEvent('custom-leagues-updated'));
+
       return data;
     } catch (error) {
       console.error('Error creating league:', error);
@@ -195,6 +199,9 @@ export const useCustomLeagues = () => {
       if (error) throw error;
 
       await fetchData();
+
+      // Dispatch event to notify components of league updates
+      window.dispatchEvent(new CustomEvent('custom-leagues-updated'));
     } catch (error) {
       console.error('Error joining league:', error);
       logError(error, 'useCustomLeagues.joinLeague');
@@ -218,6 +225,9 @@ export const useCustomLeagues = () => {
       if (error) throw error;
 
       await fetchData();
+
+      // Dispatch event to notify components of league updates
+      window.dispatchEvent(new CustomEvent('custom-leagues-updated'));
     } catch (error) {
       console.error('Error leaving league:', error);
       logError(error, 'useCustomLeagues.leaveLeague');
@@ -248,6 +258,9 @@ export const useCustomLeagues = () => {
       if (error) throw error;
 
       await fetchData();
+
+      // Dispatch event to notify components of league updates
+      window.dispatchEvent(new CustomEvent('custom-leagues-updated'));
     } catch (error) {
       console.error('Error deleting league:', error);
       logError(error, 'useCustomLeagues.deleteLeague');

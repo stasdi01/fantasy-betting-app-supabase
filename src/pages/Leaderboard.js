@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Trophy, Crown, Medal, Target, TrendingUp, Calendar, Award, Star, Flame } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/Loading/LoadingSpinner';
@@ -16,7 +17,8 @@ const allTimeLeaderboardData = [
     bestStreak: 23,
     joinDate: "2023-01-15",
     badge: "legend",
-    specialTitle: "Betting Legend"
+    specialTitle: "Betting Legend",
+    userTier: "MAX"
   },
   {
     id: 2,
@@ -28,7 +30,8 @@ const allTimeLeaderboardData = [
     bestStreak: 19,
     joinDate: "2023-03-22",
     badge: "master",
-    specialTitle: "Prediction Master"
+    specialTitle: "Prediction Master",
+    userTier: "MAX"
   },
   {
     id: 3,
@@ -40,7 +43,8 @@ const allTimeLeaderboardData = [
     bestStreak: 16,
     joinDate: "2023-02-08",
     badge: "elite",
-    specialTitle: "Elite Predictor"
+    specialTitle: "Elite Predictor",
+    userTier: "PRO"
   },
   {
     id: 4,
@@ -52,7 +56,8 @@ const allTimeLeaderboardData = [
     bestStreak: 15,
     joinDate: "2023-04-12",
     badge: "expert",
-    specialTitle: "Sports Expert"
+    specialTitle: "Sports Expert",
+    userTier: "MAX"
   },
   {
     id: 5,
@@ -64,7 +69,8 @@ const allTimeLeaderboardData = [
     bestStreak: 18,
     joinDate: "2023-05-30",
     badge: "pro",
-    specialTitle: "Pro Analyst"
+    specialTitle: "Pro Analyst",
+    userTier: "PRO"
   },
   {
     id: 6,
@@ -76,7 +82,8 @@ const allTimeLeaderboardData = [
     bestStreak: 12,
     joinDate: "2023-06-18",
     badge: "skilled",
-    specialTitle: "Lucky Striker"
+    specialTitle: "Lucky Striker",
+    userTier: "FREE"
   },
   {
     id: 7,
@@ -88,7 +95,8 @@ const allTimeLeaderboardData = [
     bestStreak: 21,
     joinDate: "2023-07-03",
     badge: "skilled",
-    specialTitle: "Streak Master"
+    specialTitle: "Streak Master",
+    userTier: "PRO"
   },
   {
     id: 8,
@@ -100,7 +108,8 @@ const allTimeLeaderboardData = [
     bestStreak: 14,
     joinDate: "2023-08-15",
     badge: "talented",
-    specialTitle: "Betting Genius"
+    specialTitle: "Betting Genius",
+    userTier: "FREE"
   },
   {
     id: 9,
@@ -112,7 +121,8 @@ const allTimeLeaderboardData = [
     bestStreak: 11,
     joinDate: "2023-09-22",
     badge: "talented",
-    specialTitle: "Champion"
+    specialTitle: "Champion",
+    userTier: "PRO"
   },
   {
     id: 10,
@@ -124,7 +134,8 @@ const allTimeLeaderboardData = [
     bestStreak: 10,
     joinDate: "2023-10-08",
     badge: "rising",
-    specialTitle: "Rising Star"
+    specialTitle: "Rising Star",
+    userTier: "FREE"
   }
 ];
 
@@ -142,8 +153,18 @@ const getBadgeColor = (badge) => {
   return colors[badge] || 'linear-gradient(135deg, var(--primary), var(--primary-light))';
 };
 
+const getTierBadgeStyle = (tier) => {
+  const styles = {
+    FREE: { background: 'rgba(148, 163, 184, 0.2)', color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.3)' },
+    PRO: { background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)' },
+    MAX: { background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24', border: '1px solid rgba(251, 191, 36, 0.3)' }
+  };
+  return styles[tier] || styles.FREE;
+};
+
 const Leaderboard = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [leaderboardData, setLeaderboardData] = useState([]);
 
@@ -221,6 +242,22 @@ const Leaderboard = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* VIP Access Banner */}
+      <div className="vip-access-banner">
+        <div className="vip-banner-content">
+          <div className="vip-banner-text">
+            <Crown size={20} />
+            <span>Want to see what the top players are betting on?</span>
+          </div>
+          <button
+            className="vip-upgrade-btn"
+            onClick={() => navigate('/premium')}
+          >
+            Upgrade to MAX to see their bets
+          </button>
         </div>
       </div>
 
@@ -338,6 +375,15 @@ const Leaderboard = () => {
                           <span className="stat-value">
                             <Calendar size={14} />
                             {formatDate(player.joinDate)}
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Plan</span>
+                          <span
+                            className="tier-badge"
+                            style={getTierBadgeStyle(player.userTier)}
+                          >
+                            {player.userTier}
                           </span>
                         </div>
                       </div>

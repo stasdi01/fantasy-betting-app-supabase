@@ -70,7 +70,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  background: #000000 !important;
   border-bottom: 2px solid var(--primary-color);
 }
 

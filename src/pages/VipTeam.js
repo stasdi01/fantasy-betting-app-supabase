@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import { Crown, RefreshCw, Lock, Shield, Trophy, TrendingUp, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Crown, RefreshCw, Shield, Target } from 'lucide-react';
 import { useVipTeam } from '../hooks/useVipTeam';
-import TopPerformerCard from '../components/VipTeam/TopPerformerCard';
 import RecentPredictions from '../components/VipTeam/RecentPredictions';
-import PerformanceInsights from '../components/VipTeam/PerformanceInsights';
 import { useToast } from '../components/Toast/ToastProvider';
+import { useAuth } from '../context/AuthContext';
 import '../styles/VipTeam.css';
 
 const VipTeam = () => {
   const {
     hasVipAccess,
-    topPerformers,
-    leaderboardData,
     recentPredictions,
-    performanceInsights,
     loading,
     refreshData
   } = useVipTeam();
 
   const toast = useToast();
+  const navigate = useNavigate();
+  const { isMax } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -34,55 +33,54 @@ const VipTeam = () => {
   };
 
   // Access denied screen for non-MAX users
-  if (!hasVipAccess) {
+  if (!isMax) {
     return (
       <div className="vip-team-container">
-        <div className="vip-team-header">
-          <div className="header-content">
-            <Crown size={32} />
-            <div className="header-text">
-              <h1>VIP Team</h1>
-              <p>Exclusive access to top performers' predictions and insights</p>
-            </div>
+        {/* Attractive Marketing Header */}
+        <div className="vip-marketing-header">
+          <div className="marketing-background">
+            <div className="gradient-orb orb-1"></div>
+            <div className="gradient-orb orb-2"></div>
+            <div className="gradient-orb orb-3"></div>
           </div>
-        </div>
 
-        <div className="access-denied">
-          <div className="access-denied-content">
-            <Lock size={64} />
-            <h2>Premium MAX Required</h2>
-            <p>
-              Get exclusive access to the Hall of Fame - see what the best predictors in Betify are betting on.
-              This premium feature is only available to MAX subscribers.
+          <div className="marketing-content">
+            <div className="vip-badge">
+              <Crown size={24} />
+              <span>VIP TEAM</span>
+            </div>
+
+            <h1>Hall of Fame Predictions</h1>
+            <p className="subtitle">
+              Get exclusive access to predictions from Betify's top 10 highest-performing users
             </p>
 
-            <div className="feature-highlights">
-              <div className="feature-item">
-                <Trophy size={24} />
-                <div>
-                  <h3>Top 10 Hall of Fame</h3>
-                  <p>Real-time access to predictions from the highest-performing users in both BetLeague and MyTeam competitions.</p>
-                </div>
+            <div className="features-preview">
+              <div className="feature-preview">
+                <Target size={20} />
+                <span>Live predictions from top performers</span>
               </div>
-              <div className="feature-item">
-                <TrendingUp size={24} />
-                <div>
-                  <h3>Performance Analytics</h3>
-                  <p>Detailed statistics and prediction patterns from top performers to help improve your strategy.</p>
-                </div>
+              <div className="feature-preview">
+                <Crown size={20} />
+                <span>Real-time bet tracking from top 10 users</span>
               </div>
-              <div className="feature-item">
-                <Target size={24} />
-                <div>
-                  <h3>Expert Predictions</h3>
-                  <p>Follow the latest predictions from users with proven track records and consistent profits.</p>
-                </div>
+              <div className="feature-preview">
+                <Shield size={20} />
+                <span>Expert betting strategies & patterns</span>
               </div>
             </div>
 
-            <div className="upgrade-prompt">
-              <Shield size={20} />
-              <span>Upgrade to Premium MAX to unlock VIP Team access!</span>
+            <div className="upgrade-cta">
+              <button
+                className="cta-btn"
+                onClick={() => navigate('/premium')}
+              >
+                <Shield size={20} />
+                Unlock VIP Team - Subscribe to MAX
+              </button>
+              <p className="cta-note">
+                Join the elite circle and follow the strategies of proven winners
+              </p>
             </div>
           </div>
         </div>
@@ -119,71 +117,18 @@ const VipTeam = () => {
         </div>
       ) : (
         <div className="vip-team-content">
-          {/* Top Performers Hall of Fame */}
-          <div className="hall-of-fame-section">
+          {/* Expert Predictions from Top 10 */}
+          <div className="expert-predictions-section">
             <div className="section-header">
-              <Trophy size={24} />
+              <Target size={24} />
               <div>
-                <h2>Hall of Fame</h2>
-                <p>Top 10 performers across all leagues ({topPerformers.length} active)</p>
+                <h2>Expert Predictions</h2>
+                <p>Latest bets from the top 10 leaderboard performers</p>
               </div>
             </div>
 
-            {topPerformers.length > 0 ? (
-              <div className="performers-grid">
-                {topPerformers.map((performer, index) => (
-                  <TopPerformerCard
-                    key={performer.userId}
-                    performer={performer}
-                    rank={performer.overallRank || index + 1}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="empty-performers">
-                <Crown size={48} />
-                <h3>No Top Performers Yet</h3>
-                <p>The Hall of Fame will populate as users compete in leagues and build their track records.</p>
-              </div>
-            )}
+            <RecentPredictions predictions={recentPredictions} loading={loading} />
           </div>
-
-          {/* Performance Insights */}
-          <PerformanceInsights insights={performanceInsights} loading={loading} />
-
-          {/* Recent Expert Predictions */}
-          <RecentPredictions predictions={recentPredictions} loading={loading} />
-
-          {/* Additional Stats Summary */}
-          {leaderboardData && (leaderboardData.betLeague.length > 0 || leaderboardData.myTeam.length > 0) && (
-            <div className="stats-summary">
-              <h2>League Leaders Summary</h2>
-              <div className="summary-grid">
-                {leaderboardData.betLeague.length > 0 && (
-                  <div className="summary-card">
-                    <h3>BetLeague Top Performer</h3>
-                    <div className="top-user">
-                      <span className="username">{leaderboardData.betLeague[0]?.users?.username}</span>
-                      <span className="profit">
-                        +{leaderboardData.betLeague[0]?.bet_league_profit?.toFixed(1) || '0.0'}%
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {leaderboardData.myTeam.length > 0 && (
-                  <div className="summary-card">
-                    <h3>MyTeam Top Performer</h3>
-                    <div className="top-user">
-                      <span className="username">{leaderboardData.myTeam[0]?.users?.username}</span>
-                      <span className="profit">
-                        +{leaderboardData.myTeam[0]?.profit?.toFixed(1) || '0.0'}%
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

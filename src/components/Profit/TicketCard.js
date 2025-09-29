@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import "../../styles/TicketCard.css";
 
-const TicketCard = ({ ticket, index }) => {
+const TicketCard = ({ ticket, index, joinedBetLeagues = [] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Koristi status iz tiketa umesto random generisanja
@@ -51,9 +51,10 @@ const TicketCard = ({ ticket, index }) => {
 
   const getProfitLoss = () => {
     if (status === "won") {
-      return `+${(
-        parseFloat(ticket.potentialWin) - parseFloat(ticket.stake)
-      ).toFixed(2)}%`;
+      // Calculate correct profit: (stake * odds) - stake
+      const totalWin = parseFloat(ticket.stake) * parseFloat(ticket.totalOdds);
+      const profit = totalWin - parseFloat(ticket.stake);
+      return `+${profit.toFixed(2)}%`;
     } else if (status === "lost") {
       return `-${ticket.stake}%`;
     }
@@ -61,9 +62,13 @@ const TicketCard = ({ ticket, index }) => {
   };
 
   const getBetTypeIndicator = () => {
-    // TODO: Add custom league indicator when Your Leagues system is implemented
     if (ticket.betType === "premium" || ticket.isPremiumBet) {
-      return <span className="bet-type-badge premium">👑 Premium</span>;
+      return <span className="bet-type-badge premium">👑 MyTeam</span>;
+    } else if (ticket.betType === "custom_league" && ticket.leagueId) {
+      // Find the league name from joinedBetLeagues
+      const league = joinedBetLeagues.find(l => l.id.toString() === ticket.leagueId.toString());
+      const leagueName = league ? league.name : `League #${ticket.leagueId}`;
+      return <span className="bet-type-badge premium">👑 {leagueName}</span>;
     }
     return <span className="bet-type-badge free">🆓 Free League</span>;
   };
@@ -72,32 +77,37 @@ const TicketCard = ({ ticket, index }) => {
     <div className={getStatusClass()}>
       <div className="ticket-header" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="ticket-info">
-          <div className="ticket-number">
-            Ticket #{ticket.id ? ticket.id : index + 1}
-            {getStatusIcon()}
+          <div className="ticket-left">
+            <div className="ticket-number">
+              {getStatusIcon()}
+              Ticket #{ticket.id ? ticket.id : index + 1}
+            </div>
+            <div className="ticket-date">{formatDate(ticket.date)}</div>
           </div>
-          <div className="ticket-date">{formatDate(ticket.date)}</div>
-          {getBetTypeIndicator()}
-        </div>
 
-        <div className="ticket-summary">
-          <div className="ticket-odds">
-            <span className="label">Odds:</span>
-            <span className="value">{ticket.totalOdds}</span>
-          </div>
-          <div className="ticket-stake">
-            <span className="label">Stake:</span>
-            <span className="value">{ticket.stake}%</span>
-          </div>
-          <div className={`ticket-profit ${status}`}>
-            <span className="label">Profit:</span>
-            <span className="value">{getProfitLoss()}</span>
+          <div className="ticket-right">
+            <div className="ticket-summary">
+              <div className="summary-item">
+                <span className="summary-label">Odds</span>
+                <span className="summary-value">{ticket.totalOdds}</span>
+              </div>
+              <div className="summary-item">
+                <span className="summary-label">Stake</span>
+                <span className="summary-value">{ticket.stake}%</span>
+              </div>
+              <div className="summary-item">
+                <span className="summary-label">Result</span>
+                <span className={`summary-value ${status}`}>{getProfitLoss()}</span>
+              </div>
+            </div>
+
+            {getBetTypeIndicator()}
+
+            <button className="expand-button">
+              {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
           </div>
         </div>
-
-        <button className="expand-button">
-          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </button>
       </div>
 
       {isExpanded && (
@@ -121,13 +131,21 @@ const TicketCard = ({ ticket, index }) => {
           <div className="ticket-footer">
             <div className="potential-win">
               <span>Potential Win:</span>
-              <span className="win-amount">{ticket.potentialWin}%</span>
+              <span className="win-amount">{(parseFloat(ticket.stake) * parseFloat(ticket.totalOdds)).toFixed(2)}%</span>
             </div>
             {status === "won" && (
               <div className="actual-win">
                 <span>Won:</span>
                 <span className="win-amount green">
-                  +{ticket.potentialWin}%
+                  +{(parseFloat(ticket.stake) * parseFloat(ticket.totalOdds)).toFixed(2)}%
+                </span>
+              </div>
+            )}
+            {status === "won" && (
+              <div className="actual-win">
+                <span>Profit:</span>
+                <span className="win-amount green">
+                  +{((parseFloat(ticket.stake) * parseFloat(ticket.totalOdds)) - parseFloat(ticket.stake)).toFixed(2)}%
                 </span>
               </div>
             )}

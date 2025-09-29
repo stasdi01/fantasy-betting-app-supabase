@@ -243,6 +243,151 @@ export const mockEuroLeaguePlayers = [
     nationality: 'Germany',
     photo_url: null,
     season_averages: { points: 7.8, assists: 1.1, rebounds: 5.2 }
+  },
+
+  // Additional Point Guards for depth
+  {
+    id: 'pg6',
+    name: 'Kostas Sloukas',
+    team: 'Panathinaikos',
+    position: 'PG',
+    nationality: 'Greece',
+    photo_url: null,
+    season_averages: { points: 10.5, assists: 6.2, rebounds: 2.4 }
+  },
+  {
+    id: 'pg7',
+    name: 'Nick Calathes',
+    team: 'Fenerbahçe',
+    position: 'PG',
+    nationality: 'Greece/USA',
+    photo_url: null,
+    season_averages: { points: 8.9, assists: 7.1, rebounds: 3.1 }
+  },
+  {
+    id: 'pg8',
+    name: 'Kyle Kuric',
+    team: 'Barcelona',
+    position: 'PG',
+    nationality: 'USA',
+    photo_url: null,
+    season_averages: { points: 9.2, assists: 2.8, rebounds: 2.5 }
+  },
+
+  // Additional Shooting Guards for depth
+  {
+    id: 'sg6',
+    name: 'Alex Abrines',
+    team: 'Barcelona',
+    position: 'SG',
+    nationality: 'Spain',
+    photo_url: null,
+    season_averages: { points: 12.1, assists: 1.9, rebounds: 2.8 }
+  },
+  {
+    id: 'sg7',
+    name: 'Yogi Ferrell',
+    team: 'ALBA Berlin',
+    position: 'SG',
+    nationality: 'USA',
+    photo_url: null,
+    season_averages: { points: 14.6, assists: 4.2, rebounds: 2.1 }
+  },
+  {
+    id: 'sg8',
+    name: 'Tarik Black',
+    team: 'Maccabi Tel Aviv',
+    position: 'SG',
+    nationality: 'USA',
+    photo_url: null,
+    season_averages: { points: 11.8, assists: 2.1, rebounds: 4.2 }
+  },
+
+  // Additional Small Forwards for depth
+  {
+    id: 'sf6',
+    name: 'Kevin Punter',
+    team: 'Partizan',
+    position: 'SF',
+    nationality: 'USA',
+    photo_url: null,
+    season_averages: { points: 16.3, assists: 3.1, rebounds: 3.9 }
+  },
+  {
+    id: 'sf7',
+    name: 'Mathias Lessort',
+    team: 'Panathinaikos',
+    position: 'SF',
+    nationality: 'France',
+    photo_url: null,
+    season_averages: { points: 10.2, assists: 1.8, rebounds: 5.5 }
+  },
+  {
+    id: 'sf8',
+    name: 'Darius Thompson',
+    team: 'Red Star',
+    position: 'SF',
+    nationality: 'USA',
+    photo_url: null,
+    season_averages: { points: 13.7, assists: 3.5, rebounds: 4.1 }
+  },
+
+  // Additional Power Forwards for depth
+  {
+    id: 'pf6',
+    name: 'Johannes Voigtmann',
+    team: 'Bayern Munich',
+    position: 'PF',
+    nationality: 'Germany',
+    photo_url: null,
+    season_averages: { points: 9.4, assists: 2.7, rebounds: 4.8 }
+  },
+  {
+    id: 'pf7',
+    name: 'Tornike Shengelia',
+    team: 'Virtus Bologna',
+    position: 'PF',
+    nationality: 'Georgia',
+    photo_url: null,
+    season_averages: { points: 14.1, assists: 2.9, rebounds: 5.6 }
+  },
+  {
+    id: 'pf8',
+    name: 'Livio Jean-Charles',
+    team: 'ASVEL',
+    position: 'PF',
+    nationality: 'France',
+    photo_url: null,
+    season_averages: { points: 8.7, assists: 1.5, rebounds: 4.9 }
+  },
+
+  // Additional Centers for depth
+  {
+    id: 'c6',
+    name: 'Bryant Dunston',
+    team: 'Anadolu Efes',
+    position: 'C',
+    nationality: 'USA',
+    photo_url: null,
+    season_averages: { points: 6.9, assists: 1.1, rebounds: 4.7 }
+  },
+  {
+    id: 'c7',
+    name: 'Georgios Papagiannis',
+    team: 'Panathinaikos',
+    position: 'C',
+    nationality: 'Greece',
+    photo_url: null,
+    season_averages: { points: 8.3, assists: 0.9, rebounds: 5.1 }
+  },
+  {
+    id: 'c8',
+    name: 'Vincent Poirier',
+    team: 'Real Madrid',
+    position: 'C',
+    nationality: 'France',
+    photo_url: null,
+    season_averages: { points: 7.1, assists: 1.3, rebounds: 4.8 }
   }
 ];
 

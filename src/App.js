@@ -14,6 +14,7 @@ import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Layout from "./components/Layout";
 import Matches from "./pages/Matches";
+import MatchDetail from "./pages/MatchDetail";
 import Profit from "./pages/Profit";
 import MyTeam from "./pages/MyTeam";
 import PublicLeague from "./pages/PublicLeague";
@@ -23,6 +24,7 @@ import Leaderboard from "./pages/Leaderboard";
 import VipTeam from "./pages/VipTeam";
 import Premium from "./pages/Premium";
 import Profile from "./pages/Profile";
+import Rules from "./pages/Rules";
 import PredictionCart from "./components/PredictionCart";
 import "./App.css";
 import "./styles/theme.css";
@@ -69,6 +71,12 @@ const AppContent = () => {
               <Matches cartItems={cartItems} setCartItems={setCartItems} />
             }
           />
+          <Route
+            path="/match/:matchId"
+            element={
+              <MatchDetail cartItems={cartItems} setCartItems={setCartItems} />
+            }
+          />
           <Route path="/profit" element={<Profit />} />
           <Route path="/myteam" element={<MyTeam />} />
           <Route path="/public-league" element={<PublicLeague />} />
@@ -78,6 +86,7 @@ const AppContent = () => {
           <Route path="/vip-team" element={<VipTeam />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/rules" element={<Rules />} />
         </Routes>
       </Layout>
       <PredictionCart cartItems={cartItems} setCartItems={setCartItems} />

@@ -73,7 +73,7 @@ export const matchesData = {
       league: "La Liga",
       date: "2024-12-15",
       time: "21:00",
-      status: "upcoming",
+      status: "live",
       odds: {
         home: 2.2,
         draw: 3.4,
@@ -166,6 +166,14 @@ export const matchesData = {
           "12": 1.2,
           "X2": 2.2,
         },
+        handicap: {
+          "home-1": 3.2,
+          "draw-1": 3.8,
+          "away+1": 2.1,
+          "home+1": 1.2,
+          "draw+1": 6.0,
+          "away-1": 9.5,
+        },
         correctScore: {
           "0-0": 12.5,
           "1-0": 6.8,
@@ -231,6 +239,14 @@ export const matchesData = {
           "12": 1.15,
           "X2": 2.45,
         },
+        handicap: {
+          "home-1": 2.8,
+          "draw-1": 4.2,
+          "away+1": 2.3,
+          "home+1": 1.12,
+          "draw+1": 7.5,
+          "away-1": 12.0,
+        },
         correctScore: {
           "0-0": 13.5,
           "1-0": 6.2,
@@ -295,6 +311,14 @@ export const matchesData = {
           "1X": 1.6,
           "12": 1.45,
           "X2": 1.65,
+        },
+        handicap: {
+          "home-1": 4.5,
+          "draw-1": 3.2,
+          "away+1": 1.78,
+          "home+1": 1.45,
+          "draw+1": 4.2,
+          "away-1": 5.8,
         },
         correctScore: {
           "0-0": 10.5,
@@ -384,7 +408,7 @@ export const matchesData = {
       league: "NBA",
       date: "2024-12-15",
       time: "03:00",
-      status: "upcoming",
+      status: "live",
       odds: {
         home: 2.1,
         away: 1.75,
@@ -545,16 +569,6 @@ export const matchesData = {
           "0-2": 3.6,
           "1-2": 4.1,
         },
-        totalSets: {
-          "over2.5": 3.2,
-          "under2.5": 1.32,
-        },
-        setsHandicap: {
-          "home-0.5": 2.05,
-          "away+0.5": 1.75,
-          "home+0.5": 1.4,
-          "away-0.5": 2.8,
-        },
         totalGames: {
           "over21.5": 1.85,
           "under21.5": 1.95,
@@ -590,7 +604,7 @@ export const matchesData = {
       league: "WTA Finals",
       date: "2024-12-15",
       time: "16:30",
-      status: "upcoming",
+      status: "live",
       odds: {
         home: 1.95,
         away: 1.85,
@@ -601,16 +615,6 @@ export const matchesData = {
           "2-1": 3.4,
           "0-2": 3.0,
           "1-2": 3.8,
-        },
-        totalSets: {
-          "over2.5": 3.4,
-          "under2.5": 1.3,
-        },
-        setsHandicap: {
-          "home-0.5": 1.85,
-          "away+0.5": 1.95,
-          "home+0.5": 1.5,
-          "away-0.5": 2.5,
         },
         totalGames: {
           "over20.5": 1.9,
@@ -659,16 +663,6 @@ export const matchesData = {
           "0-2": 4.2,
           "1-2": 4.8,
         },
-        totalSets: {
-          "over2.5": 3.0,
-          "under2.5": 1.35,
-        },
-        setsHandicap: {
-          "home-0.5": 2.25,
-          "away+0.5": 1.65,
-          "home+0.5": 1.3,
-          "away-0.5": 3.2,
-        },
         totalGames: {
           "over22.5": 1.8,
           "under22.5": 2.0,
@@ -715,16 +709,6 @@ export const matchesData = {
           "2-1": 3.8,
           "0-2": 2.9,
           "1-2": 3.6,
-        },
-        totalSets: {
-          "over2.5": 3.8,
-          "under2.5": 1.25,
-        },
-        setsHandicap: {
-          "home-0.5": 1.75,
-          "away+0.5": 2.1,
-          "home+0.5": 1.6,
-          "away-0.5": 2.3,
         },
         totalGames: {
           "over21.5": 1.75,
@@ -773,16 +757,6 @@ export const matchesData = {
           "0-2": 3.1,
           "1-2": 3.7,
         },
-        totalSets: {
-          "over2.5": 3.3,
-          "under2.5": 1.31,
-        },
-        setsHandicap: {
-          "home-0.5": 1.95,
-          "away+0.5": 1.85,
-          "home+0.5": 1.45,
-          "away-0.5": 2.7,
-        },
         totalGames: {
           "over22.5": 1.85,
           "under22.5": 1.95,
@@ -829,16 +803,6 @@ export const matchesData = {
           "2-1": 2.9,
           "0-2": 4.8,
           "1-2": 5.2,
-        },
-        totalSets: {
-          "over2.5": 2.9,
-          "under2.5": 1.38,
-        },
-        setsHandicap: {
-          "home-0.5": 2.45,
-          "away+0.5": 1.55,
-          "home+0.5": 1.25,
-          "away-0.5": 3.8,
         },
         totalGames: {
           "over20.5": 1.9,

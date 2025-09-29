@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Target, Trophy, Zap } from "lucide-react";
 import MatchCard from "../components/Matches/MatchCard";
 import SkeletonCard from "../components/Loading/SkeletonCard";
-import { matchesData, randomizeOdds } from "../data/matchesData";
+import { matchesData, randomizeAllMarkets } from "../data/matchesData";
 import "../styles/Matches.css";
 
 const Matches = ({ cartItems, setCartItems }) => {
@@ -22,20 +22,17 @@ const Matches = ({ cartItems, setCartItems }) => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      const footballWithRandomOdds = matchesData.football.map((match) => ({
-        ...match,
-        odds: randomizeOdds(match.odds),
-      }));
+      const footballWithRandomOdds = matchesData.football.map((match) =>
+        randomizeAllMarkets(match)
+      );
 
-      const basketballWithRandomOdds = matchesData.basketball.map((match) => ({
-        ...match,
-        odds: randomizeOdds(match.odds),
-      }));
+      const basketballWithRandomOdds = matchesData.basketball.map((match) =>
+        randomizeAllMarkets(match)
+      );
 
-      const tennisWithRandomOdds = matchesData.tennis.map((match) => ({
-        ...match,
-        odds: randomizeOdds(match.odds),
-      }));
+      const tennisWithRandomOdds = matchesData.tennis.map((match) =>
+        randomizeAllMarkets(match)
+      );
 
       setMatches({
         football: footballWithRandomOdds,

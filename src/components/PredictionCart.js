@@ -14,14 +14,13 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
   const [stake, setStake] = useState(10); // Default 10%
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [leagueType, setLeagueType] = useState('bet'); // 'bet' or 'myteam'
+  const leagueType = 'bet'; // Only BetLeague supported in betting cart
   const [selectedLeague, setSelectedLeague] = useState("public"); // "public" or league ID
 
   const { user, isPremium } = useAuth();
   const { success, error: showError, info } = useToast();
   const {
     betLeagueProfit,
-    myTeamLeagueProfit,
     getAvailableBudget,
     canPlaceTicket,
     updateProfit,
@@ -33,14 +32,17 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
     deductCustomLeagueStake
   } = useBudget();
 
-  const { joinedLeagues } = useCustomLeagues();
+  const { joinedLeagues, refreshData } = useCustomLeagues();
 
-  // Transform joined leagues to match the expected format
-  const joinedPools = joinedLeagues.map(membership => ({
-    id: membership.custom_leagues?.id,
-    name: membership.custom_leagues?.name,
-    icon: membership.custom_leagues?.league_type === 'myteam' ? '🎯' : '🏆'
-  })).filter(league => league.id); // Filter out any invalid leagues
+  // Transform joined leagues to match the expected format - only show BetLeagues
+  const joinedPools = joinedLeagues
+    .filter(membership => membership.custom_leagues?.league_type === 'bet') // Only BetLeagues
+    .map(membership => ({
+      id: membership.custom_leagues?.id,
+      name: membership.custom_leagues?.name,
+      icon: '🏆'
+    }))
+    .filter(league => league.id); // Filter out any invalid leagues
 
   // Get budget based on selected league
   const getSelectedBudget = () => {
@@ -58,7 +60,7 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
 
   const getSelectedProfit = () => {
     if (selectedLeague === "public") {
-      return leagueType === 'myteam' ? myTeamLeagueProfit : betLeagueProfit;
+      return betLeagueProfit;
     } else {
       try {
         const leagueBudget = getCustomLeagueBudget(selectedLeague);
@@ -97,12 +99,14 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
   useEffect(() => {
     const handleCustomLeaguesUpdate = () => {
       console.log('PredictionCart: Custom leagues updated, refreshing...');
-      // The custom leagues hook will automatically refresh when needed
+      if (refreshData) {
+        refreshData();
+      }
     };
 
     window.addEventListener('custom-leagues-updated', handleCustomLeaguesUpdate);
     return () => window.removeEventListener('custom-leagues-updated', handleCustomLeaguesUpdate);
-  }, []);
+  }, [refreshData]);
 
   // Remove match from ticket
   const removeFromCart = (itemId) => {
@@ -369,50 +373,6 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
             </select>
           </div>
 
-          {/* League Type Toggle (only for Public League) */}
-          {selectedLeague === "public" && (
-            <div className="league-type-toggle" style={{ marginBottom: '1rem' }}>
-              <label style={{ color: 'var(--text-primary)', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
-                League Type:
-              </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="leagueType"
-                    value="bet"
-                    checked={leagueType === 'bet'}
-                    onChange={(e) => {
-                      setLeagueType(e.target.value);
-                      // Reset stake when switching league type
-                      const newBudget = getAvailableBudget(e.target.value);
-                      if (stake > newBudget) {
-                        setStake(Math.min(10, newBudget));
-                      }
-                    }}
-                  />
-                  <span style={{ color: 'var(--text-primary)' }}>BetLeague</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="leagueType"
-                    value="myteam"
-                    checked={leagueType === 'myteam'}
-                    onChange={(e) => {
-                      setLeagueType(e.target.value);
-                      // Reset stake when switching league type
-                      const newBudget = getAvailableBudget(e.target.value);
-                      if (stake > newBudget) {
-                        setStake(Math.min(10, newBudget));
-                      }
-                    }}
-                  />
-                  <span style={{ color: 'var(--primary-light)' }}>MyTeam</span>
-                </label>
-              </div>
-            </div>
-          )}
 
           <div className="stake-section">
             <label>Stake (%):</label>
@@ -465,7 +425,7 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
               style={{ color: "#ef4444", textAlign: "center", padding: "1rem" }}
             >
               {selectedLeague === "public"
-                ? `${leagueType === 'myteam' ? 'MyTeam League' : 'BetLeague'} budget blocked! Monthly limit reached (-100% profit)`
+                ? "BetLeague budget blocked! Monthly limit reached (-100% profit)"
                 : "Custom League budget blocked! League limit reached (-100% profit)"
               }
             </div>
@@ -480,7 +440,7 @@ const PredictionCart = ({ cartItems, setCartItems }) => {
                   <LoadingSpinner size="sm" color="white" />
                 ) : (
                   <span className="button-text">
-                    Place {selectedLeague === "public" ? (leagueType === 'myteam' ? "MyTeam " : "Bet ") : "Custom League "}Prediction
+                    Place {selectedLeague === "public" ? "Bet " : "Custom League "}Prediction
                   </span>
                 )}
               </button>

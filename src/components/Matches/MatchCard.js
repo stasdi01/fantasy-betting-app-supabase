@@ -1,8 +1,11 @@
 import React from "react";
-import { Clock, PlayCircle } from "lucide-react";
+import { Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/MatchCard.css";
 
 const MatchCard = ({ match, sport, onOddClick, selectedBets }) => {
+  const navigate = useNavigate();
+
   const formatTime = (time) => {
     return time.slice(0, 5);
   };
@@ -25,36 +28,39 @@ const MatchCard = ({ match, sport, onOddClick, selectedBets }) => {
     }
   };
 
-  // Proveri da li je kvota selektovana
+  // Check if odd is selected
   const isOddSelected = (betType) => {
     return selectedBets.some(
       (item) => item.match.id === match.id && item.betType === betType
     );
   };
 
+  // Handle clicking on match (not on odds buttons)
+  const handleMatchClick = (e) => {
+    // Don't navigate if clicking on odds buttons
+    if (e.target.closest('.odd-button')) return;
+
+    navigate(`/match/${match.id}`, {
+      state: { match, sport }
+    });
+  };
+
   return (
-    <div className="match-card">
-      {/* Header sa ligom i vremenom */}
+    <div className="match-card" onClick={handleMatchClick}>
+      {/* Header with league and time */}
       <div className="match-header">
         <span className="league">{match.league}</span>
         <div className="match-time">
-          {match.status === "live" ? (
-            <div className="live-indicator">
-              <PlayCircle size={14} />
-              <span>LIVE</span>
-            </div>
-          ) : (
-            <div className="time-indicator">
-              <Clock size={14} />
-              <span>
-                {formatDate(match.date)} {formatTime(match.time)}
-              </span>
-            </div>
-          )}
+          <div className="time-indicator">
+            <Clock size={14} />
+            <span>
+              {formatDate(match.date)} {formatTime(match.time)}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Timovi */}
+      {/* Teams */}
       <div className="teams-section">
         <div className="team home-team">
           <span className="team-name">{match.homeTeam}</span>
@@ -65,12 +71,10 @@ const MatchCard = ({ match, sport, onOddClick, selectedBets }) => {
         </div>
       </div>
 
-      {/* Kvote */}
+      {/* Simple 1X2 Odds */}
       <div className="odds-section">
         <button
-          className={`odd-button home-odd ${
-            isOddSelected("home") ? "selected" : ""
-          }`}
+          className={`odd-button home-odd ${isOddSelected("home") ? "selected" : ""}`}
           onClick={() => onOddClick(match, "home", match.odds.home)}
         >
           <span className="odd-label">1</span>
@@ -79,9 +83,7 @@ const MatchCard = ({ match, sport, onOddClick, selectedBets }) => {
 
         {sport === "football" && (
           <button
-            className={`odd-button draw-odd ${
-              isOddSelected("draw") ? "selected" : ""
-            }`}
+            className={`odd-button draw-odd ${isOddSelected("draw") ? "selected" : ""}`}
             onClick={() => onOddClick(match, "draw", match.odds.draw)}
           >
             <span className="odd-label">X</span>
@@ -90,9 +92,7 @@ const MatchCard = ({ match, sport, onOddClick, selectedBets }) => {
         )}
 
         <button
-          className={`odd-button away-odd ${
-            isOddSelected("away") ? "selected" : ""
-          }`}
+          className={`odd-button away-odd ${isOddSelected("away") ? "selected" : ""}`}
           onClick={() => onOddClick(match, "away", match.odds.away)}
         >
           <span className="odd-label">2</span>
