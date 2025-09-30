@@ -207,6 +207,19 @@
   display: block;
 }
 
+.stat-card.current-user-profit {
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.stat-number.positive {
+  color: var(--success);
+}
+
+.stat-number.negative {
+  color: var(--danger);
+}
+
 /* League Content */
 .league-content {
   max-width: 1200px;

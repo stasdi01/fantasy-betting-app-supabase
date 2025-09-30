@@ -76,7 +76,7 @@ const Layout = ({ children }) => {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
-          <h1>BETIFY</h1>
+          <h1>DreamStake</h1>
         </div>
         <div className="header-right">
           {getProfitDisplay()}

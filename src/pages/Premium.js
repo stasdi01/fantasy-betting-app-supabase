@@ -64,7 +64,7 @@ const Premium = () => {
         'Maximum 100 people per league',
         'Customize league rules',
         'Access to VIP Team (Hall of Fame)',
-        'Unlimited teams per MyTeam League'
+        'Maximum 5 teams per MyTeam League'
       ],
       limitations: []
     }
@@ -126,7 +126,7 @@ const Premium = () => {
         <h1>Premium Plans</h1>
         <p>
           Choose the plan that fits your prediction style. Upgrade anytime to unlock more features
-          and enhance your Betify experience.
+          and enhance your DreamStakes experience.
         </p>
       </div>
 
@@ -146,7 +146,7 @@ const Premium = () => {
           Premium features help you create more engaging competitions with friends and family.
           Build custom leagues, track detailed statistics, and access exclusive insights from
           top performers. All subscriptions support the development of new features and keep
-          Betify running smoothly.
+          DreamStakes running smoothly.
         </p>
 
         <div className="benefits-grid">

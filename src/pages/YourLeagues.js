@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Search, Crown, Filter, Zap } from 'lucide-react';
+import { Users, Plus, Search, Crown, Filter, Zap, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast/ToastProvider';
 import { useCustomLeagues } from '../hooks/useCustomLeagues';
+import { useBudget } from '../hooks/useBudget';
 import CreateLeagueModal from '../components/CustomLeagues/CreateLeagueModal';
 import LeagueCard from '../components/CustomLeagues/LeagueCard';
 import LoadingSpinner from '../components/Loading/LoadingSpinner';
@@ -25,6 +26,12 @@ const YourLeagues = () => {
     findPublicLeagues,
     getLeagueLimits
   } = useCustomLeagues();
+
+  const {
+    customLeagueBudgets,
+    loading: budgetLoading,
+    getCustomLeagueBudget
+  } = useBudget();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeTab, setActiveTab] = useState('my-leagues'); // 'my-leagues', 'joined', 'discover'
@@ -162,7 +169,10 @@ const YourLeagues = () => {
     );
   };
 
-  if (loading) {
+  // Combined loading state - show loading if either leagues or budget data is loading
+  const isLoading = loading || budgetLoading;
+
+  if (isLoading) {
     return (
       <div className="your-leagues-container">
         <div className="leagues-header">
@@ -170,6 +180,10 @@ const YourLeagues = () => {
             <h1>Your Leagues</h1>
             <div className="header-skeleton" style={{ height: '1.5rem', width: '300px' }} />
           </div>
+        </div>
+        {/* Profit Statistics Skeleton */}
+        <div className="profit-overview-skeleton">
+          <div className="skeleton-card" style={{ height: '120px', marginBottom: '2rem' }} />
         </div>
         <div className="leagues-grid">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -228,6 +242,98 @@ const YourLeagues = () => {
           </div>
         )}
       </div>
+
+      {/* Profit Overview */}
+      {(leagues.length > 0 || joinedLeagues.length > 0) && (
+        <div className="profit-overview-section">
+          <div className="profit-overview-header">
+            <TrendingUp size={24} />
+            <div>
+              <h2>League Performance Overview</h2>
+              <p>Your profit statistics across all custom leagues this month</p>
+            </div>
+          </div>
+
+          <div className="profit-stats-grid">
+            {/* Total Leagues */}
+            <div className="profit-stat-card">
+              <div className="stat-value">
+                {(leagues.length + joinedLeagues.length)}
+              </div>
+              <div className="stat-label">Total Leagues</div>
+            </div>
+
+            {/* Active Leagues (with bets) */}
+            <div className="profit-stat-card">
+              <div className="stat-value">
+                {Object.keys(customLeagueBudgets || {}).length}
+              </div>
+              <div className="stat-label">Active Leagues</div>
+            </div>
+
+            {/* Total Profit */}
+            <div className="profit-stat-card">
+              {(() => {
+                const totalProfit = Object.values(customLeagueBudgets || {}).reduce((sum, budget) => {
+                  return sum + (budget.profit || 0);
+                }, 0);
+                return (
+                  <>
+                    <div className={`stat-value ${totalProfit >= 0 ? 'positive' : 'negative'}`}>
+                      {totalProfit >= 0 ? '+' : ''}{totalProfit.toFixed(2)}%
+                    </div>
+                    <div className="stat-label">Total Profit</div>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Best League */}
+            <div className="profit-stat-card">
+              {(() => {
+                const budgets = Object.values(customLeagueBudgets || {});
+                const bestProfit = budgets.length > 0 ? Math.max(...budgets.map(b => b.profit || 0)) : 0;
+                return (
+                  <>
+                    <div className={`stat-value ${bestProfit >= 0 ? 'positive' : 'negative'}`}>
+                      {bestProfit >= 0 ? '+' : ''}{bestProfit.toFixed(2)}%
+                    </div>
+                    <div className="stat-label">Best League</div>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Total Bets */}
+            <div className="profit-stat-card">
+              <div className="stat-value">
+                {Object.values(customLeagueBudgets || {}).reduce((sum, budget) => {
+                  return sum + (budget.bets || 0);
+                }, 0)}
+              </div>
+              <div className="stat-label">Total Bets</div>
+            </div>
+
+            {/* Average Win Rate */}
+            <div className="profit-stat-card">
+              {(() => {
+                const budgets = Object.values(customLeagueBudgets || {});
+                const totalBets = budgets.reduce((sum, budget) => sum + (budget.bets || 0), 0);
+                const totalWins = budgets.reduce((sum, budget) => sum + (budget.wins || 0), 0);
+                const avgWinRate = totalBets > 0 ? (totalWins / totalBets * 100) : 0;
+                return (
+                  <>
+                    <div className="stat-value">
+                      {avgWinRate.toFixed(1)}%
+                    </div>
+                    <div className="stat-label">Win Rate</div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="leagues-tabs">

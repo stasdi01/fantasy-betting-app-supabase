@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast/ToastProvider';
+import { useBudget } from '../hooks/useBudget';
 import LoadingSpinner from '../components/Loading/LoadingSpinner';
 import { supabase } from '../lib/supabase';
 import '../styles/LeagueDetail.css';
@@ -15,6 +16,7 @@ const LeagueDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { success, error: showError } = useToast();
+  const { getCustomLeagueBudget } = useBudget();
 
   const [league, setLeague] = useState(null);
   const [members, setMembers] = useState([]);
@@ -75,20 +77,43 @@ const LeagueDetail = () => {
         if (membersError) throw membersError;
         setMembers(membersData || []);
 
-        // Generate mock stats for members (in real app, this would come from actual bet/team data)
-        const statsData = membersData.map((member, index) => ({
-          userId: member.users.id,
-          username: member.users.username,
-          joinedAt: member.joined_at,
-          // Mock data - replace with real stats
-          profit: Math.random() * 200 - 50, // Random profit between -50% and +150%
-          totalBets: Math.floor(Math.random() * 100) + 10,
-          winRate: Math.random() * 40 + 50, // Random win rate between 50% and 90%
-          bestStreak: Math.floor(Math.random() * 15) + 1,
-          rank: index + 1,
-          teamName: leagueData.league_type === 'myteam' ? `${member.users.username}'s Team` : null,
-          isCreator: member.users.id === leagueData.creator_id
-        }));
+        // Fetch real custom league budget stats for members
+        const { data: budgetData, error: budgetError } = await supabase
+          .from('custom_league_budgets')
+          .select('*')
+          .eq('league_id', leagueId);
+
+        if (budgetError) {
+          console.error('Error fetching budget data:', budgetError);
+        }
+
+        // Create budget lookup by user_id
+        const budgetLookup = {};
+        if (budgetData) {
+          budgetData.forEach(budget => {
+            budgetLookup[budget.user_id] = budget;
+          });
+        }
+
+        // Generate stats data with real budget information
+        const statsData = membersData.map((member, index) => {
+          const userBudget = budgetLookup[member.users.id];
+
+          return {
+            userId: member.users.id,
+            username: member.users.username,
+            joinedAt: member.joined_at,
+            // Real data from custom_league_budgets table
+            profit: userBudget ? parseFloat(userBudget.profit) || 0 : 0,
+            totalBets: userBudget ? userBudget.bets || 0 : 0,
+            winRate: userBudget ? parseFloat(userBudget.win_rate) || 0 : 0,
+            wins: userBudget ? userBudget.wins || 0 : 0,
+            bestStreak: userBudget ? Math.max(userBudget.wins || 0, 1) : 0, // Simple calculation
+            rank: index + 1,
+            teamName: leagueData.league_type === 'myteam' ? `${member.users.username}'s Team` : null,
+            isCreator: member.users.id === leagueData.creator_id
+          };
+        });
 
         // Sort by profit for leaderboard
         statsData.sort((a, b) => b.profit - a.profit);
@@ -277,6 +302,21 @@ const LeagueDetail = () => {
                   <span className="stat-label">Top Profit</span>
                 </div>
               </div>
+
+              {/* Current user's profit for this league */}
+              {userMembership && (
+                <div className="stat-card current-user-profit">
+                  <User size={24} />
+                  <div>
+                    <span
+                      className={`stat-number ${getCustomLeagueBudget(leagueId).profit >= 0 ? 'positive' : 'negative'}`}
+                    >
+                      {getCustomLeagueBudget(leagueId).profit >= 0 ? '+' : ''}{getCustomLeagueBudget(leagueId).profit.toFixed(1)}%
+                    </span>
+                    <span className="stat-label">Your Profit</span>
+                  </div>
+                </div>
+              )}
 
               {/* Join button for non-members */}
               {!userMembership && league.creator_id !== user.id && league.is_public && (

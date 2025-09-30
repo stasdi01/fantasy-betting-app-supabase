@@ -20,7 +20,7 @@ const Rules = () => {
             </div>
             <div className="title-text">
               <h1>Rules & How to Play</h1>
-              <p>Everything you need to know about Betify - the ultimate sports prediction platform</p>
+              <p>Everything you need to know about DreamStakes - the ultimate sports prediction platform</p>
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@ const Rules = () => {
           </div>
           <div className="section-content">
             <p>
-              Betify is a sports prediction platform where you compete against other users by making predictions on football matches.
+              DreamStakes is a sports prediction platform where you compete against other users by making predictions on football matches.
               Your success is measured by virtual percentage-based profits, not real money. The goal is to achieve the highest profit
               percentage through accurate predictions and smart betting strategies.
             </p>

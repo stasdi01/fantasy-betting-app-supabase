@@ -52,7 +52,7 @@ const VipTeam = () => {
 
             <h1>Hall of Fame Predictions</h1>
             <p className="subtitle">
-              Get exclusive access to predictions from Betify's top 10 highest-performing users
+              Get exclusive access to predictions from DreamStakes' top 10 highest-performing users
             </p>
 
             <div className="features-preview">

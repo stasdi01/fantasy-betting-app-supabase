@@ -4,27 +4,23 @@ import { useAuth } from "../context/AuthContext";
 import { useConfirm } from "../components/Toast/ConfirmDialog";
 import { useToast } from "../components/Toast/ToastProvider";
 import { useCustomLeagues } from "../hooks/useCustomLeagues";
+import { useBudget } from "../hooks/useBudget";
 import SkeletonCard from "../components/Loading/SkeletonCard";
 import { getErrorMessage, logError } from "../utils/errorHandler";
 import { supabase } from "../lib/supabase";
 import TicketCard from "../components/Profit/TicketCard";
-import ProfitStats from "../components/Profit/ProfitStats";
+import RealProfitStats from "../components/Profit/RealProfitStats";
 import "../styles/Profit.css";
 
 const Profit = () => {
   const { user } = useAuth();
   const { confirm } = useConfirm();
   const { success, error: showError } = useToast();
-  const { joinedLeagues, refreshData } = useCustomLeagues();
+  const { refreshData } = useCustomLeagues();
+  const { getCustomLeagueBudget } = useBudget();
 
-  // Filter to show only BetLeagues that user joined/created
-  const joinedBetLeagues = joinedLeagues
-    .filter(membership => membership.custom_leagues?.league_type === 'bet')
-    .map(membership => ({
-      id: membership.custom_leagues?.id,
-      name: membership.custom_leagues?.name
-    }))
-    .filter(league => league.id);
+  // State for joined bet leagues
+  const [joinedBetLeagues, setJoinedBetLeagues] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [filterType, setFilterType] = useState("all"); // all, free, premium, pool_5, pool_10, pool_15, pool_30
@@ -40,6 +36,30 @@ const Profit = () => {
       }
 
       try {
+        // Fetch joined bet leagues first
+        const { data: leagueData, error: leagueError } = await supabase
+          .from('league_memberships')
+          .select(`
+            *,
+            custom_leagues(*)
+          `)
+          .eq('user_id', user.id);
+
+        if (leagueError) {
+          console.error('Error fetching leagues:', leagueError);
+        } else {
+          // Filter only bet leagues
+          const betLeagues = leagueData
+            .filter(membership => membership.custom_leagues?.league_type === 'bet')
+            .map(membership => ({
+              id: membership.custom_leagues?.id,
+              name: membership.custom_leagues?.name
+            }))
+            .filter(league => league.id);
+
+          setJoinedBetLeagues(betLeagues);
+        }
+
         const { data, error } = await supabase
           .from('predictions')
           .select('*')
@@ -359,7 +379,13 @@ const Profit = () => {
       </div>
 
       {/* Statistics */}
-      {filteredTickets.length > 0 && <ProfitStats tickets={filteredTickets} />}
+      {filteredTickets.length > 0 && (
+        <RealProfitStats
+          tickets={filteredTickets}
+          leagueId={filterType.startsWith("league_") ? filterType.replace("league_", "") : null}
+          getCustomLeagueBudget={getCustomLeagueBudget}
+        />
+      )}
 
       {/* Tickets List */}
       <div className="tickets-section">

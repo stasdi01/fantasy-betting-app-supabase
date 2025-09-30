@@ -3,10 +3,11 @@ import { User, Plus, Trash2, Trophy, Target, History, Edit } from 'lucide-react'
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast/ToastProvider';
 import { mockEuroLeaguePlayers, getPlayerOdds } from '../data/euroLeagueData';
+import { supabase } from '../lib/supabase';
 import '../styles/MyTeam.css';
 
 const MyTeam = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { success, error: showError } = useToast();
 
   // Team state - starting lineup + bench (10 players total)
@@ -34,31 +35,10 @@ const MyTeam = () => {
 
   // View mode and saved teams
   const [viewMode, setViewMode] = useState('builder'); // 'builder' or 'teams'
-  const [savedTeams, setSavedTeams] = useState([
-    // Mock saved team for testing
-    {
-      id: 1,
-      name: 'Team Alpha',
-      status: 'active',
-      createdAt: new Date(),
-      team: {
-        starting: {
-          PG: { name: 'Luka Doncic', team: 'Real Madrid', prediction: { description: '25+ points', odds: 1.85 }, budget: 25 },
-          SG: null,
-          SF: null,
-          PF: null,
-          C: null
-        },
-        bench: {
-          PG: null,
-          SG: null,
-          SF: null,
-          PF: null,
-          C: null
-        }
-      }
-    }
-  ]); // Mock saved teams for now
+  const [savedTeams, setSavedTeams] = useState([]);
+
+  // Team name input
+  const [teamName, setTeamName] = useState('');
 
   // Get max teams allowed based on user role
   const getMaxTeams = () => {
@@ -85,6 +65,80 @@ const MyTeam = () => {
     setTotalBudgetUsed(total);
   }, [team]);
 
+  // Load saved teams from Supabase on component mount
+  useEffect(() => {
+    if (user) {
+      loadSavedTeams();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Load saved teams from database
+  const loadSavedTeams = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_teams')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading saved teams:', error);
+        showError('Failed to load saved teams');
+        return;
+      }
+
+      const formattedTeams = data.map(team => ({
+        id: team.id,
+        name: team.name,
+        status: team.status,
+        createdAt: team.created_at,
+        team: team.team_data,
+        totalBudget: team.team_data.starting && team.team_data.bench ?
+          [...Object.values(team.team_data.starting), ...Object.values(team.team_data.bench)]
+            .reduce((sum, player) => sum + (player?.budget || 0), 0) : 0
+      }));
+
+      setSavedTeams(formattedTeams);
+    } catch (error) {
+      console.error('Error loading saved teams:', error);
+      showError('Failed to load saved teams');
+    }
+  };
+
+  // Save team to database
+  const saveTeamToDatabase = async (teamData) => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_teams')
+        .insert({
+          user_id: user.id,
+          name: teamData.name,
+          status: teamData.status,
+          team_data: teamData.team
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving team to database:', error);
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        name: data.name,
+        status: data.status,
+        createdAt: data.created_at,
+        team: data.team_data,
+        totalBudget: teamData.totalBudget
+      };
+    } catch (error) {
+      console.error('Error in saveTeamToDatabase:', error);
+      throw error;
+    }
+  };
+
   // Get used player IDs to prevent duplicates
   const getUsedPlayerIds = () => {
     const allPlayers = [...Object.values(team.starting), ...Object.values(team.bench)];
@@ -100,6 +154,16 @@ const MyTeam = () => {
 
   // Handle player selection with prediction
   const handlePlayerSelect = (player, predictionType, budget) => {
+    if (budget < 5) {
+      showError(`Minimum budget per player is 5%. You entered: ${budget}%`);
+      return;
+    }
+
+    if (budget > 55) {
+      showError(`Maximum budget per player is 55%. You entered: ${budget}%`);
+      return;
+    }
+
     if (budget <= 0 || budget > (100 - totalBudgetUsed)) {
       showError(`Invalid budget. Available: ${100 - totalBudgetUsed}%`);
       return;
@@ -155,8 +219,30 @@ const MyTeam = () => {
     return allPlayers.every(player => player !== null);
   };
 
+  // Check if team name already exists
+  const checkTeamNameExists = async (name) => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_teams')
+        .select('name')
+        .eq('name', name.trim())
+        .limit(1);
+
+      if (error) throw error;
+      return data.length > 0;
+    } catch (error) {
+      console.error('Error checking team name:', error);
+      return false;
+    }
+  };
+
   // Save team
   const handleSaveTeam = async () => {
+    if (!teamName.trim()) {
+      showError('Please enter a team name!');
+      return;
+    }
+
     if (!isTeamComplete()) {
       showError('Please fill all positions before saving team!');
       return;
@@ -167,23 +253,53 @@ const MyTeam = () => {
       return;
     }
 
+    // Check if team name already exists
+    const nameExists = await checkTeamNameExists(teamName);
+    if (nameExists) {
+      showError('This team name is already taken. Please choose a different name.');
+      return;
+    }
+
     try {
       // Create saved team object
-      const savedTeam = {
-        id: Date.now(), // Simple ID for now
-        name: `Team ${savedTeams.length + 1}`,
-        createdAt: new Date(),
+      const teamToSave = {
+        name: teamName.trim(),
         team: { ...team },
         totalBudget: totalBudgetUsed,
-        status: 'active' // active, finished, etc.
+        status: 'Active'
       };
 
-      // Add to saved teams
+      // Save to database
+      const savedTeam = await saveTeamToDatabase(teamToSave);
+
+      // Add to local state
       setSavedTeams(prev => [...prev, savedTeam]);
 
-      // Here will be database save logic
-      console.log('Saving team:', savedTeam);
-      success('Team saved successfully!');
+      // Clear the current team
+      setTeam({
+        starting: {
+          PG: null,
+          SG: null,
+          SF: null,
+          PF: null,
+          C: null
+        },
+        bench: {
+          PG: null,
+          SG: null,
+          SF: null,
+          PF: null,
+          C: null
+        }
+      });
+
+      // Clear team name
+      setTeamName('');
+
+      // Switch to saved teams view
+      setViewMode('teams');
+
+      success('Team submitted successfully!');
     } catch (error) {
       console.error('Error saving team:', error);
       showError('Error saving team.');
@@ -197,6 +313,7 @@ const MyTeam = () => {
         starting: { PG: null, SG: null, SF: null, PF: null, C: null },
         bench: { PG: null, SG: null, SF: null, PF: null, C: null }
       });
+      setTeamName('');
       success('Team cleared!');
     }
   };
@@ -280,40 +397,54 @@ const MyTeam = () => {
       </div>
 
       {viewMode === 'builder' ? (
-        <div>
-          <div className="team-builder">
-            {/* Starting Lineup */}
-            <div className="lineup-section">
-              <h3><Target size={20} /> Starting Lineup</h3>
-              <div className="positions-grid">
-                {positions.map(position => (
-                  <PositionCard
-                    key={`starting-${position}`}
-                    position={position}
-                    positionName={positionNames[position]}
-                    player={team.starting[position]}
-                    onClick={() => handlePositionClick(position, 'starting')}
-                    onRemove={() => handleRemovePlayer('starting', position)}
-                  />
-                ))}
-              </div>
+        <div className="team-builder">
+          {/* Team Name Input */}
+          <div className="team-name-section">
+            <h3>Team Name</h3>
+            <div className="team-name-input">
+              <input
+                type="text"
+                placeholder="Enter your team name..."
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                maxLength={50}
+                className="team-name-field"
+              />
+              <span className="char-count">{teamName.length}/50</span>
             </div>
+          </div>
 
-            {/* Bench */}
-            <div className="lineup-section">
-              <h3><User size={20} /> Bench</h3>
-              <div className="positions-grid">
-                {positions.map(position => (
-                  <PositionCard
-                    key={`bench-${position}`}
-                    position={position}
-                    positionName={positionNames[position]}
-                    player={team.bench[position]}
-                    onClick={() => handlePositionClick(position, 'bench')}
-                    onRemove={() => handleRemovePlayer('bench', position)}
-                  />
-                ))}
-              </div>
+          {/* Starting Lineup */}
+          <div className="lineup-section">
+            <h3><Target size={20} /> Starting Lineup</h3>
+            <div className="positions-grid">
+              {positions.map(position => (
+                <PositionCard
+                  key={`starting-${position}`}
+                  position={position}
+                  positionName={positionNames[position]}
+                  player={team.starting[position]}
+                  onClick={() => handlePositionClick(position, 'starting')}
+                  onRemove={() => handleRemovePlayer('starting', position)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Bench */}
+          <div className="lineup-section">
+            <h3><User size={20} /> Bench</h3>
+            <div className="positions-grid">
+              {positions.map(position => (
+                <PositionCard
+                  key={`bench-${position}`}
+                  position={position}
+                  positionName={positionNames[position]}
+                  player={team.bench[position]}
+                  onClick={() => handlePositionClick(position, 'bench')}
+                  onRemove={() => handleRemovePlayer('bench', position)}
+                />
+              ))}
             </div>
           </div>
 
@@ -331,10 +462,10 @@ const MyTeam = () => {
             <button
               className="btn-primary"
               onClick={handleSaveTeam}
-              disabled={!isTeamComplete() || totalBudgetUsed !== 100}
+              disabled={!teamName.trim() || !isTeamComplete() || totalBudgetUsed !== 100}
             >
               <Trophy size={18} />
-              Save Team
+              Submit Team
             </button>
           </div>
         </div>
@@ -424,7 +555,6 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
 
         <div className="modal-body">
           {!selectedPlayer ? (
-            // Player Selection
             <div className="player-list">
               <p>Available budget: {availableBudget}%</p>
               {availablePlayers.map(player => (
@@ -442,7 +572,6 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
               ))}
             </div>
           ) : !selectedPrediction ? (
-            // Prediction Selection
             <div className="prediction-selection">
               <div className="selected-player">
                 <strong>{selectedPlayer.name}</strong> ({selectedPlayer.team})
@@ -456,7 +585,6 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
               />
             </div>
           ) : (
-            // Budget Selection
             <div className="budget-selection">
               <div className="selection-summary">
                 <strong>{selectedPlayer.name}</strong> - {getPredictionDesc(selectedPrediction, selectedPlayer)}
@@ -550,8 +678,6 @@ const SavedTeamsView = ({ teams }) => {
 
 // Saved Team Card Component
 const SavedTeamCard = ({ team }) => {
-  const { success } = useToast();
-
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -559,12 +685,6 @@ const SavedTeamCard = ({ team }) => {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  const handleViewDetails = () => {
-    success(`Viewing details for ${team.name}`);
-    console.log('Team details:', team);
-    // Ovde možete dodati logiku za otvaranje modala ili navigaciju
   };
 
   const getPlayerCount = () => {
@@ -608,44 +728,21 @@ const SavedTeamCard = ({ team }) => {
       <div className="team-players-preview" style={{ marginBottom: '1rem' }}>
         <h5 style={{ color: '#fafafa', marginBottom: '0.5rem' }}>Starting Lineup:</h5>
         <div className="players-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          {Object.entries(team.team.starting).map(([position, player]) => (
-            <div key={position} className="player-preview" style={{ fontSize: '0.9rem' }}>
-              {player ? (
-                <span style={{ color: '#a1a1aa' }}>
-                  <strong style={{ color: '#8b5cf6' }}>{position}:</strong> {player.name} - {player.prediction.description} ({player.budget}%)
-                </span>
-              ) : (
-                <span style={{ color: '#71717a' }}><strong style={{ color: '#8b5cf6' }}>{position}:</strong> Empty</span>
-              )}
-            </div>
-          ))}
+          {['PG', 'SG', 'SF', 'PF', 'C'].map((position) => {
+            const player = team.team.starting[position];
+            return (
+              <div key={position} className="player-preview" style={{ fontSize: '0.9rem' }}>
+                {player ? (
+                  <span style={{ color: '#a1a1aa' }}>
+                    <strong style={{ color: '#8b5cf6' }}>{position}:</strong> {player.name} - {player.prediction.description} ({player.budget}%)
+                  </span>
+                ) : (
+                  <span style={{ color: '#71717a' }}><strong style={{ color: '#8b5cf6' }}>{position}:</strong> Empty</span>
+                )}
+              </div>
+            );
+          })}
         </div>
-      </div>
-
-      <div className="team-card-actions">
-        <button
-          className="btn-view"
-          onClick={handleViewDetails}
-          onMouseEnter={(e) => {
-            e.target.style.background = '#8b5cf6';
-            e.target.style.color = 'white';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = 'transparent';
-            e.target.style.color = '#8b5cf6';
-          }}
-          style={{
-            width: '100%',
-            padding: '0.5rem 1rem',
-            background: 'transparent',
-            border: '1px solid #8b5cf6',
-            borderRadius: '8px',
-            color: '#8b5cf6',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}>
-          View Details
-        </button>
       </div>
     </div>
   );
