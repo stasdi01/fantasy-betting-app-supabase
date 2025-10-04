@@ -23,8 +23,6 @@ const BettingCart = ({ cartItems, setCartItems }) => {
     myTeamLeagueProfit,
     getAvailableBudget,
     canPlaceTicket,
-    updateProfit,
-    deductStake,
     // TODO: Add custom league budget functions when Your Leagues system is implemented
   } = useBudget();
 
@@ -159,16 +157,16 @@ const BettingCart = ({ cartItems, setCartItems }) => {
         },
         total_odds: getTotalOdds(),
         stake_amount: stakeAmount,
-        potential_win: potentialWinAmount,
+        potential_return: potentialWinAmount,
         status: ticketStatus,
-        is_premium_bet: isPremiumBet,
+        league_type: isPremiumBet ? "MyTeam" : "Free",
         month_year: new Date().toISOString().slice(0, 7), // YYYY-MM format
       };
 
       // Save bet to database
       console.log('Saving bet data:', betData);
       const { data: betResult, error: betError } = await supabase
-        .from('bets')
+        .from('predictions')
         .insert([betData]);
 
       console.log('Database insert result:', { betResult, betError });
@@ -181,15 +179,29 @@ const BettingCart = ({ cartItems, setCartItems }) => {
       // Update profit based on bet status and selected pool
       console.log('Updating profit. Status:', ticketStatus, 'Pool:', selectedPool);
       if (selectedPool === "free") {
-        // Free League betting
-        console.log('Updating free league profit...');
+        // BetLeague betting (Matches page uses 'bet' league type)
+        console.log('Updating BetLeague profit...');
+        const monthKey = new Date().toISOString().slice(0, 7);
+
+        let profitChange = 0;
         if (ticketStatus === "won") {
-          await updateProfit(stakeAmount, potentialWinAmount, true, isPremiumBet);
-        } else if (ticketStatus === "lost") {
-          await updateProfit(stakeAmount, potentialWinAmount, false, isPremiumBet);
-        } else if (ticketStatus === "pending") {
-          await deductStake(stakeAmount, isPremiumBet);
+          profitChange = potentialWinAmount - stakeAmount; // Net win
+        } else if (ticketStatus === "lost" || ticketStatus === "pending") {
+          profitChange = -stakeAmount; // Deduct stake
         }
+
+        const newBetLeagueProfit = betLeagueProfit + profitChange;
+
+        await supabase
+          .from('monthly_budgets')
+          .upsert({
+            user_id: user.id,
+            month_year: monthKey,
+            bet_league_profit: newBetLeagueProfit,
+            myteam_league_profit: myTeamLeagueProfit
+          }, {
+            onConflict: 'user_id,month_year'
+          });
       } else {
         // TODO: Custom League betting when Your Leagues system is implemented
         console.log('Custom league betting not yet implemented');

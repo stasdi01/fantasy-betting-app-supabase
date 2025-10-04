@@ -45,6 +45,8 @@ const RealProfitStats = ({ tickets, leagueId = null, getCustomLeagueBudget }) =>
           totalWon += potentialWin - stake;
         } else if (status === "lost") {
           totalLost += stake;
+        } else if (status === "pending") {
+          totalLost += stake; // Oduzmi stake i za pending
         }
       });
 

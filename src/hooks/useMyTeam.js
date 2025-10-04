@@ -7,13 +7,9 @@ import {
   mockEuroLeaguePlayers,
   mockPlayerRoundPredictions,
   getCurrentEuroLeagueRound,
-  getRoundById,
   euroLeagueRounds,
   emptyRoster,
-  getPlayersByPosition,
-  getPlayerById,
-  getPlayerPredictions,
-  getPlayerOdds
+  getPlayersByPosition
 } from '../data/euroLeagueData';
 
 export const useMyTeam = (leagueId = null) => {
@@ -22,8 +18,8 @@ export const useMyTeam = (leagueId = null) => {
 
   const [loading, setLoading] = useState(true);
   const [currentRoster, setCurrentRoster] = useState(emptyRoster);
-  const [availablePlayers] = useState(mockEuroLeaguePlayers);
-  const [playerPredictions] = useState(mockPlayerRoundPredictions);
+  const [availablePlayers, setAvailablePlayers] = useState([]);
+  const [playerPredictions, setPlayerPredictions] = useState({});
   const [currentRound] = useState(getCurrentEuroLeagueRound());
   const [availableRounds] = useState(euroLeagueRounds);
   const [userTeams, setUserTeams] = useState([]);
@@ -66,6 +62,78 @@ export const useMyTeam = (leagueId = null) => {
     setUserTeams(teams);
     setCurrentRoster(teams[0] || emptyRoster);
   }, [getMaxTeamsAllowed]);
+
+  // Load players from database
+  const loadPlayers = useCallback(async () => {
+    console.log('🔄 Loading players from database...');
+    try {
+      // Fetch all EuroLeague players
+      const { data: players, error: playersError } = await supabase
+        .from('euroleague_players')
+        .select('*')
+        .order('name');
+
+      console.log('📡 Database response:', { players: players?.length, error: playersError });
+
+      if (playersError) {
+        console.error('❌ Error loading players:', playersError);
+        logError(playersError, 'useMyTeam.loadPlayers');
+        // Fallback to mock data if database fails
+        console.warn('⚠️  Falling back to mock data');
+        setAvailablePlayers(mockEuroLeaguePlayers);
+        return;
+      }
+
+      // Transform database players to match expected format
+      const transformedPlayers = players?.map(player => ({
+        id: player.id,
+        name: player.name,
+        team: player.team,
+        teamId: player.team_id,
+        position: player.position,
+        nationality: player.nationality,
+        photo: player.photo_url,
+        stats: player.season_averages
+      })) || [];
+
+      setAvailablePlayers(transformedPlayers);
+
+      // Fetch player round lines for current round
+      const { data: lines, error: linesError } = await supabase
+        .from('player_round_lines')
+        .select('*')
+        .eq('round_id', currentRound.id);
+
+      if (linesError) {
+        console.error('Error loading player lines:', linesError);
+        logError(linesError, 'useMyTeam.loadPlayerLines');
+        setPlayerPredictions(mockPlayerRoundPredictions);
+        return;
+      }
+
+      // Transform lines to predictions format
+      const predictions = {};
+      lines?.forEach(line => {
+        if (!predictions[line.player_id]) {
+          predictions[line.player_id] = {};
+        }
+        predictions[line.player_id][line.stat] = {
+          line: line.line,
+          odds: line.over_odds
+        };
+      });
+
+      setPlayerPredictions(predictions);
+
+      console.log(`✅ Loaded ${transformedPlayers.length} players and ${lines?.length || 0} prop lines from database`);
+    } catch (error) {
+      console.error('Error in loadPlayers:', error);
+      logError(error, 'useMyTeam.loadPlayers');
+      // Fallback to mock data
+      setAvailablePlayers(mockEuroLeaguePlayers);
+      setPlayerPredictions(mockPlayerRoundPredictions);
+    }
+  }, [currentRound.id]);
 
   // Load user's saved teams from database
   const loadUserTeams = useCallback(async () => {
@@ -439,10 +507,18 @@ export const useMyTeam = (leagueId = null) => {
     }
   }, [user, leagueId, currentRound.id, selectedTeamIndex, userTeams]);
 
+  // Load data on mount
   useEffect(() => {
-    loadUserTeams();
-    loadTeamHistory();
-  }, [loadUserTeams, loadTeamHistory]);
+    loadPlayers();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load user teams when user changes
+  useEffect(() => {
+    if (user) {
+      loadUserTeams();
+      loadTeamHistory();
+    }
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Switch between user's teams
   const switchTeam = (teamIndex) => {
@@ -685,12 +761,12 @@ export const useMyTeam = (leagueId = null) => {
   };
 
   // Calculate total stake and potential win for all predictions
-  const calculateTeamPredictionValue = () => {
+  const calculateTeamPredictionValue = useCallback(() => {
     let totalStake = 0;
     let totalPotentialWin = 0;
 
     Object.entries(currentRoster.predictions).forEach(([playerId, playerPreds]) => {
-      const playerOdds = getPlayerOdds(playerId);
+      const playerOdds = getPlayerOddsLocal(playerId);
 
       Object.entries(playerPreds).forEach(([statType, pred]) => {
         const stake = pred.stake || 0;
@@ -706,7 +782,7 @@ export const useMyTeam = (leagueId = null) => {
       totalStake: Math.round(totalStake * 100) / 100,
       totalPotentialWin: Math.round(totalPotentialWin * 100) / 100
     };
-  };
+  }, [currentRoster.predictions, getPlayerOddsLocal]);
 
   // Submit team for current round
   const submitTeam = async () => {
@@ -886,11 +962,26 @@ export const useMyTeam = (leagueId = null) => {
     }
   };
 
+  // Helper: Get player by ID from local state
+  const getPlayerByIdLocal = useCallback((playerId) => {
+    return availablePlayers.find(p => p.id === playerId);
+  }, [availablePlayers]);
+
+  // Helper: Get player predictions (odds) from local state
+  const getPlayerPredictionsLocal = useCallback((playerId) => {
+    return playerPredictions[playerId] || {};
+  }, [playerPredictions]);
+
+  // Helper: Get player odds (alias for predictions)
+  const getPlayerOddsLocal = useCallback((playerId) => {
+    return playerPredictions[playerId] || {};
+  }, [playerPredictions]);
+
   // Get roster summary
-  const getRosterSummary = () => {
+  const getRosterSummary = useCallback(() => {
     const allPlayers = [...Object.values(currentRoster.starters), ...Object.values(currentRoster.bench)]
       .filter(Boolean)
-      .map(playerId => getPlayerById(playerId))
+      .map(playerId => getPlayerByIdLocal(playerId))
       .filter(Boolean);
 
     const predictionsCount = Object.keys(currentRoster.predictions).length;
@@ -907,7 +998,7 @@ export const useMyTeam = (leagueId = null) => {
       availableBudget: getAvailableBudget(false, 'myteam'),
       isComplete: allPlayers.length === 10 && predictionsCount > 0
     };
-  };
+  }, [currentRoster, getPlayerByIdLocal, getAvailableBudget]);
 
   // Helper functions for round management
   const isRoundActive = (round) => {
@@ -976,8 +1067,9 @@ export const useMyTeam = (leagueId = null) => {
 
     // Helpers
     getPlayersByPosition,
-    getPlayerById,
-    getPlayerPredictions,
+    getPlayerById: getPlayerByIdLocal,
+    getPlayerPredictions: getPlayerPredictionsLocal,
+    getPlayerOdds: getPlayerOddsLocal,
     getMaxTeamsAllowed: getMaxTeamsAllowed()
   };
 };

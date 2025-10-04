@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Plus, Trash2, Trophy, Target, History, Edit } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast/ToastProvider';
-import { mockEuroLeaguePlayers, getPlayerOdds } from '../data/euroLeagueData';
+import { mockEuroLeaguePlayers } from '../data/euroLeagueData';
 import { supabase } from '../lib/supabase';
 import '../styles/MyTeam.css';
 
@@ -39,6 +39,67 @@ const MyTeam = () => {
 
   // Team name input
   const [teamName, setTeamName] = useState('');
+
+  // Players data from database
+  const [availablePlayers, setAvailablePlayers] = useState([]);
+  const [playerOdds, setPlayerOdds] = useState({});
+
+  // Load players from database
+  useEffect(() => {
+    const loadPlayers = async () => {
+      console.log('🔄 Loading players for MyTeam page...');
+      try {
+        const { data: players, error } = await supabase
+          .from('euroleague_players')
+          .select('*')
+          .order('name');
+
+        if (error) {
+          console.error('❌ Error loading players:', error);
+          setAvailablePlayers(mockEuroLeaguePlayers);
+          return;
+        }
+
+        const transformedPlayers = players?.map(player => ({
+          id: player.id,
+          name: player.name,
+          team: player.team,
+          position: player.position,
+          nationality: player.nationality,
+          photo: player.photo_url,
+          stats: player.season_averages,
+          budget: 10 // Default budget
+        })) || [];
+
+        setAvailablePlayers(transformedPlayers);
+        console.log(`✅ Loaded ${transformedPlayers.length} players`);
+
+        // Load player odds/lines
+        const { data: lines, error: linesError } = await supabase
+          .from('player_round_lines')
+          .select('*')
+          .eq('round_id', 'el-round-1');
+
+        if (!linesError && lines) {
+          const odds = {};
+          lines.forEach(line => {
+            if (!odds[line.player_id]) odds[line.player_id] = {};
+            odds[line.player_id][line.stat] = {
+              line: line.line,
+              odds: line.over_odds
+            };
+          });
+          setPlayerOdds(odds);
+          console.log(`✅ Loaded ${lines.length} player prop lines`);
+        }
+      } catch (error) {
+        console.error('Error loading players:', error);
+        setAvailablePlayers(mockEuroLeaguePlayers);
+      }
+    };
+
+    loadPlayers();
+  }, []);
 
   // Get max teams allowed based on user role
   const getMaxTeams = () => {
@@ -169,8 +230,8 @@ const MyTeam = () => {
       return;
     }
 
-    const playerOdds = getPlayerOdds(player.id);
-    const selectedPrediction = playerOdds[predictionType];
+    const playerOddsData = playerOdds[player.id] || {};
+    const selectedPrediction = playerOddsData[predictionType];
 
     const playerData = {
       playerId: player.id,
@@ -482,6 +543,8 @@ const MyTeam = () => {
           availableBudget={100 - totalBudgetUsed}
           onPlayerSelect={handlePlayerSelect}
           onClose={() => setShowPlayerModal(false)}
+          availablePlayers={availablePlayers}
+          playerOdds={playerOdds}
         />
       )}
     </div>
@@ -528,13 +591,13 @@ const PositionCard = ({ position, positionName, player, onClick, onRemove }) => 
 };
 
 // Player Selection Modal Component
-const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudget, onPlayerSelect, onClose }) => {
+const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudget, onPlayerSelect, onClose, availablePlayers = [], playerOdds = {} }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedPrediction, setSelectedPrediction] = useState(null);
   const [budget, setBudget] = useState(0);
 
   // Filter available players for this position
-  const availablePlayers = mockEuroLeaguePlayers.filter(player =>
+  const filteredPlayers = availablePlayers.filter(player =>
     player.position === position && !usedPlayerIds.includes(player.id)
   );
 
@@ -557,7 +620,7 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
           {!selectedPlayer ? (
             <div className="player-list">
               <p>Available budget: {availableBudget}%</p>
-              {availablePlayers.map(player => (
+              {filteredPlayers.map(player => (
                 <div
                   key={player.id}
                   className="player-item"
@@ -566,7 +629,12 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
                   <div className="player-details">
                     <strong>{player.name}</strong>
                     <span>{player.team}</span>
-                    <small>Average: {player.season_averages.points}p, {player.season_averages.assists}a, {player.season_averages.rebounds}r</small>
+                    <small>
+                      {player.stats ?
+                        `Average: ${player.stats.points}p, ${player.stats.assists}a, ${player.stats.rebounds}r` :
+                        'No stats available'
+                      }
+                    </small>
                   </div>
                 </div>
               ))}
@@ -581,13 +649,14 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
               <h4>Select prediction:</h4>
               <PredictionOptions
                 player={selectedPlayer}
+                playerOdds={playerOdds}
                 onSelect={setSelectedPrediction}
               />
             </div>
           ) : (
             <div className="budget-selection">
               <div className="selection-summary">
-                <strong>{selectedPlayer.name}</strong> - {getPredictionDesc(selectedPrediction, selectedPlayer)}
+                <strong>{selectedPlayer.name}</strong> - {getPredictionDesc(selectedPrediction, selectedPlayer, playerOdds)}
                 <button onClick={() => setSelectedPrediction(null)}>Change</button>
               </div>
 
@@ -619,36 +688,45 @@ const PlayerSelectionModal = ({ position, section, usedPlayerIds, availableBudge
 };
 
 // Prediction Options Component
-const PredictionOptions = ({ player, onSelect }) => {
-  const odds = getPlayerOdds(player.id);
+const PredictionOptions = ({ player, playerOdds, onSelect }) => {
+  const odds = playerOdds[player.id] || {};
 
   return (
     <div className="prediction-options">
-      <div className="prediction-option" onClick={() => onSelect('points')}>
-        <div className="pred-label">Points {odds.points.threshold}+</div>
-        <div className="pred-odds">{odds.points.odds}</div>
-      </div>
-      <div className="prediction-option" onClick={() => onSelect('assists')}>
-        <div className="pred-label">Assists {odds.assists.threshold}+</div>
-        <div className="pred-odds">{odds.assists.odds}</div>
-      </div>
-      <div className="prediction-option" onClick={() => onSelect('rebounds')}>
-        <div className="pred-label">Rebounds {odds.rebounds.threshold}+</div>
-        <div className="pred-odds">{odds.rebounds.odds}</div>
-      </div>
+      {odds.points && (
+        <div className="prediction-option" onClick={() => onSelect('points')}>
+          <div className="pred-label">Points {odds.points.line}+</div>
+          <div className="pred-odds">{odds.points.odds}</div>
+        </div>
+      )}
+      {odds.assists && (
+        <div className="prediction-option" onClick={() => onSelect('assists')}>
+          <div className="pred-label">Assists {odds.assists.line}+</div>
+          <div className="pred-odds">{odds.assists.odds}</div>
+        </div>
+      )}
+      {odds.rebounds && (
+        <div className="prediction-option" onClick={() => onSelect('rebounds')}>
+          <div className="pred-label">Rebounds {odds.rebounds.line}+</div>
+          <div className="pred-odds">{odds.rebounds.odds}</div>
+        </div>
+      )}
     </div>
   );
 };
 
 // Helper function to get prediction description with player context
-const getPredictionDesc = (predType, selectedPlayer) => {
+const getPredictionDesc = (predType, selectedPlayer, playerOdds) => {
   if (!selectedPlayer) return '';
 
-  const odds = getPlayerOdds(selectedPlayer.id);
+  const odds = playerOdds[selectedPlayer.id] || {};
+  const stat = odds[predType];
+  if (!stat) return '';
+
   switch(predType) {
-    case 'points': return `${odds.points.threshold}+ points @ ${odds.points.odds}`;
-    case 'assists': return `${odds.assists.threshold}+ assists @ ${odds.assists.odds}`;
-    case 'rebounds': return `${odds.rebounds.threshold}+ rebounds @ ${odds.rebounds.odds}`;
+    case 'points': return `${stat.line}+ points @ ${stat.odds}`;
+    case 'assists': return `${stat.line}+ assists @ ${stat.odds}`;
+    case 'rebounds': return `${stat.line}+ rebounds @ ${stat.odds}`;
     default: return '';
   }
 };

@@ -1,0 +1,17 @@
+# Supabase configuration
+
+[api]
+enabled = true
+port = 54321
+
+[functions.sync-football-matches]
+verify_jwt = false
+
+[functions.sync-odds]
+verify_jwt = false
+
+[functions.sync-euroleague-data]
+verify_jwt = false
+
+[functions.calculate-player-lines]
+verify_jwt = false

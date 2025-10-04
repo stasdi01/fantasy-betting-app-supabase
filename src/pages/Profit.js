@@ -248,6 +248,7 @@ const Profit = () => {
     const totalProfit = monthTickets.reduce((sum, t) => {
       if (t.status === 'won') return sum + (t.potentialWin - t.stake);
       if (t.status === 'lost') return sum - t.stake;
+      if (t.status === 'pending') return sum - t.stake; // Oduzmi stake za pending
       return sum;
     }, 0);
 

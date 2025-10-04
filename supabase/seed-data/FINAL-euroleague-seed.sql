@@ -1,0 +1,192 @@
+-- EuroLeague 2025-26 Minimal Seed - FINAL VERSION
+-- Matches exact database schema
+
+-- Clear existing data
+DELETE FROM public.player_round_lines WHERE round_id LIKE 'el-round-%';
+DELETE FROM public.euroleague_players;
+DELETE FROM public.euroleague_rounds;
+DELETE FROM public.euroleague_teams;
+
+-- Insert 20 teams
+INSERT INTO public.euroleague_teams (id, name) VALUES
+('real-madrid', 'Real Madrid'),
+('barcelona', 'FC Barcelona'),
+('fenerbahce', 'Fenerbahce Beko Istanbul'),
+('panathinaikos', 'Panathinaikos AKTOR Athens'),
+('olympiacos', 'Olympiacos Piraeus'),
+('monaco', 'AS Monaco'),
+('efes', 'Anadolu Efes Istanbul'),
+('zalgiris', 'Zalgiris Kaunas'),
+('virtus', 'Virtus Segafredo Bologna'),
+('bayern', 'FC Bayern Munich'),
+('crvena-zvezda', 'Crvena Zvezda Meridianbet Belgrade'),
+('dubai', 'Dubai Basketball'),
+('valencia', 'Valencia Basket'),
+('partizan', 'Partizan Mozzart Bet Belgrade'),
+('asvel', 'LDLC ASVEL Villeurbanne'),
+('maccabi', 'Maccabi Playtika Tel Aviv'),
+('milan', 'EA7 Emporio Armani Milan'),
+('hapoel', 'Hapoel IBI Tel Aviv'),
+('baskonia', 'Baskonia Vitoria-Gasteiz'),
+('paris', 'Paris Basketball');
+
+-- Insert 34 rounds
+INSERT INTO public.euroleague_rounds (id, round_number, season_year, start_date, end_date, status) VALUES
+('el-round-1', 1, 2025, '2025-09-30', '2025-10-03', 'upcoming'),
+('el-round-2', 2, 2025, '2025-10-08', '2025-10-10', 'upcoming'),
+('el-round-3', 3, 2025, '2025-10-15', '2025-10-17', 'upcoming'),
+('el-round-4', 4, 2025, '2025-10-22', '2025-10-24', 'upcoming'),
+('el-round-5', 5, 2025, '2025-10-29', '2025-10-31', 'upcoming'),
+('el-round-6', 6, 2025, '2025-11-05', '2025-11-07', 'upcoming'),
+('el-round-7', 7, 2025, '2025-11-12', '2025-11-14', 'upcoming'),
+('el-round-8', 8, 2025, '2025-11-19', '2025-11-21', 'upcoming'),
+('el-round-9', 9, 2025, '2025-11-26', '2025-11-28', 'upcoming'),
+('el-round-10', 10, 2025, '2025-12-03', '2025-12-05', 'upcoming'),
+('el-round-11', 11, 2025, '2025-12-10', '2025-12-12', 'upcoming'),
+('el-round-12', 12, 2025, '2025-12-17', '2025-12-19', 'upcoming'),
+('el-round-13', 13, 2025, '2025-12-26', '2025-12-28', 'upcoming'),
+('el-round-14', 14, 2026, '2026-01-02', '2026-01-04', 'upcoming'),
+('el-round-15', 15, 2026, '2026-01-07', '2026-01-09', 'upcoming'),
+('el-round-16', 16, 2026, '2026-01-14', '2026-01-16', 'upcoming'),
+('el-round-17', 17, 2026, '2026-01-21', '2026-01-23', 'upcoming'),
+('el-round-18', 18, 2026, '2026-01-28', '2026-01-30', 'upcoming'),
+('el-round-19', 19, 2026, '2026-02-04', '2026-02-06', 'upcoming'),
+('el-round-20', 20, 2026, '2026-02-11', '2026-02-13', 'upcoming'),
+('el-round-21', 21, 2026, '2026-02-18', '2026-02-20', 'upcoming'),
+('el-round-22', 22, 2026, '2026-02-25', '2026-02-27', 'upcoming'),
+('el-round-23', 23, 2026, '2026-03-04', '2026-03-06', 'upcoming'),
+('el-round-24', 24, 2026, '2026-03-11', '2026-03-13', 'upcoming'),
+('el-round-25', 25, 2026, '2026-03-18', '2026-03-20', 'upcoming'),
+('el-round-26', 26, 2026, '2026-03-25', '2026-03-27', 'upcoming'),
+('el-round-27', 27, 2026, '2026-04-01', '2026-04-03', 'upcoming'),
+('el-round-28', 28, 2026, '2026-04-08', '2026-04-10', 'upcoming'),
+('el-round-29', 29, 2026, '2026-04-15', '2026-04-17', 'upcoming'),
+('el-round-30', 30, 2026, '2026-04-22', '2026-04-24', 'upcoming'),
+('el-round-31', 31, 2026, '2026-04-29', '2026-05-01', 'upcoming'),
+('el-round-32', 32, 2026, '2026-05-06', '2026-05-08', 'upcoming'),
+('el-round-33', 33, 2026, '2026-05-13', '2026-05-15', 'upcoming'),
+('el-round-34', 34, 2026, '2026-05-20', '2026-05-22', 'upcoming');
+
+-- Insert 100 players (5 per team) - using correct columns: id, name, team, team_id, position, nationality, season_averages
+INSERT INTO public.euroleague_players (id, name, team, team_id, position, nationality, season_averages) VALUES
+('el-25-campazzo', 'Facundo Campazzo', 'Real Madrid', 'real-madrid', 'PG', 'Argentina', '{"points": 10.5, "assists": 6.2, "rebounds": 2.5}'::jsonb),
+('el-25-hezonja', 'Mario Hezonja', 'Real Madrid', 'real-madrid', 'SF', 'Croatia', '{"points": 12.3, "assists": 2.8, "rebounds": 4.1}'::jsonb),
+('el-25-deck', 'Gabriel Deck', 'Real Madrid', 'real-madrid', 'PF', 'Argentina', '{"points": 9.7, "assists": 1.5, "rebounds": 4.3}'::jsonb),
+('el-25-tavares', 'Walter Tavares', 'Real Madrid', 'real-madrid', 'C', 'Cape Verde', '{"points": 8.2, "assists": 0.8, "rebounds": 5.9}'::jsonb),
+('el-25-musa', 'Dzanan Musa', 'Real Madrid', 'real-madrid', 'SF', 'Bosnia', '{"points": 11.4, "assists": 1.9, "rebounds": 3.2}'::jsonb),
+('el-25-satoransky', 'Tomas Satoransky', 'FC Barcelona', 'barcelona', 'PG', 'Czech Republic', '{"points": 8.1, "assists": 4.3, "rebounds": 2.7}'::jsonb),
+('el-25-vesely', 'Jan Vesely', 'FC Barcelona', 'barcelona', 'PF', 'Czech Republic', '{"points": 10.8, "assists": 1.6, "rebounds": 5.2}'::jsonb),
+('el-25-parker', 'Jabari Parker', 'FC Barcelona', 'barcelona', 'PF', 'USA', '{"points": 12.5, "assists": 2.1, "rebounds": 4.8}'::jsonb),
+('el-25-punter', 'Kevin Punter', 'FC Barcelona', 'barcelona', 'SG', 'USA', '{"points": 14.2, "assists": 2.5, "rebounds": 3.1}'::jsonb),
+('el-25-anderson', 'Justin Anderson', 'FC Barcelona', 'barcelona', 'SF', 'USA', '{"points": 9.3, "assists": 1.8, "rebounds": 3.5}'::jsonb),
+('el-25-baldwin', 'Wade Baldwin', 'Fenerbahce Beko Istanbul', 'fenerbahce', 'PG', 'USA', '{"points": 11.8, "assists": 5.1, "rebounds": 3.2}'::jsonb),
+('el-25-birch', 'Khem Birch', 'Fenerbahce Beko Istanbul', 'fenerbahce', 'C', 'Canada', '{"points": 7.5, "assists": 1.2, "rebounds": 5.8}'::jsonb),
+('el-25-hayes', 'Nigel Hayes-Davis', 'Fenerbahce Beko Istanbul', 'fenerbahce', 'PF', 'USA', '{"points": 10.2, "assists": 1.7, "rebounds": 4.3}'::jsonb),
+('el-25-motley', 'Johnathan Motley', 'Fenerbahce Beko Istanbul', 'fenerbahce', 'PF', 'USA', '{"points": 9.8, "assists": 1.3, "rebounds": 5.1}'::jsonb),
+('el-25-colson', 'Bonzie Colson', 'Fenerbahce Beko Istanbul', 'fenerbahce', 'SF', 'USA', '{"points": 8.9, "assists": 1.5, "rebounds": 3.7}'::jsonb),
+('el-25-nunn', 'Kendrick Nunn', 'Panathinaikos AKTOR Athens', 'panathinaikos', 'PG', 'USA', '{"points": 13.7, "assists": 3.8, "rebounds": 2.9}'::jsonb),
+('el-25-grant', 'Jerian Grant', 'Panathinaikos AKTOR Athens', 'panathinaikos', 'PG', 'USA', '{"points": 10.4, "assists": 4.2, "rebounds": 2.3}'::jsonb),
+('el-25-lessort', 'Mathias Lessort', 'Panathinaikos AKTOR Athens', 'panathinaikos', 'C', 'France', '{"points": 9.6, "assists": 1.1, "rebounds": 6.3}'::jsonb),
+('el-25-mitoglou', 'Ioannis Papapetrou', 'Panathinaikos AKTOR Athens', 'panathinaikos', 'SF', 'Greece', '{"points": 8.2, "assists": 1.8, "rebounds": 3.4}'::jsonb),
+('el-25-hernangomez', 'Juancho Hernangomez', 'Panathinaikos AKTOR Athens', 'panathinaikos', 'PF', 'Spain', '{"points": 11.3, "assists": 1.5, "rebounds": 5.7}'::jsonb),
+('el-25-walkup', 'Thomas Walkup', 'Olympiacos Piraeus', 'olympiacos', 'PG', 'USA', '{"points": 8.9, "assists": 4.7, "rebounds": 3.5}'::jsonb),
+('el-25-peters', 'Alec Peters', 'Olympiacos Piraeus', 'olympiacos', 'PF', 'USA', '{"points": 11.2, "assists": 1.4, "rebounds": 4.8}'::jsonb),
+('el-25-fall', 'Moustapha Fall', 'Olympiacos Piraeus', 'olympiacos', 'C', 'France', '{"points": 7.8, "assists": 0.9, "rebounds": 5.4}'::jsonb),
+('el-25-vezenkov', 'Sasha Vezenkov', 'Olympiacos Piraeus', 'olympiacos', 'PF', 'Bulgaria', '{"points": 14.5, "assists": 2.1, "rebounds": 6.2}'::jsonb),
+('el-25-mckissic', 'Shaquielle McKissic', 'Olympiacos Piraeus', 'olympiacos', 'SG', 'USA', '{"points": 10.1, "assists": 2.3, "rebounds": 3.8}'::jsonb),
+('el-25-james', 'Mike James', 'AS Monaco', 'monaco', 'PG', 'USA', '{"points": 15.8, "assists": 4.9, "rebounds": 2.7}'::jsonb),
+('el-25-motiejunas', 'Donatas Motiejunas', 'AS Monaco', 'monaco', 'C', 'Lithuania', '{"points": 9.3, "assists": 1.6, "rebounds": 4.9}'::jsonb),
+('el-25-loyd', 'Jordan Loyd', 'AS Monaco', 'monaco', 'SG', 'USA', '{"points": 12.4, "assists": 2.8, "rebounds": 3.2}'::jsonb),
+('el-25-okobo', 'Elie Okobo', 'AS Monaco', 'monaco', 'PG', 'France', '{"points": 10.7, "assists": 3.5, "rebounds": 2.4}'::jsonb),
+('el-25-diallo', 'Alpha Diallo', 'AS Monaco', 'monaco', 'SF', 'Guinea', '{"points": 8.5, "assists": 1.9, "rebounds": 4.1}'::jsonb),
+('el-25-larkin', 'Shane Larkin', 'Anadolu Efes Istanbul', 'efes', 'PG', 'USA', '{"points": 13.2, "assists": 5.8, "rebounds": 2.3}'::jsonb),
+('el-25-beaubois', 'Rodrigue Beaubois', 'Anadolu Efes Istanbul', 'efes', 'SG', 'France', '{"points": 11.5, "assists": 2.4, "rebounds": 2.7}'::jsonb),
+('el-25-dunston', 'Bryant Dunston', 'Anadolu Efes Istanbul', 'efes', 'C', 'USA', '{"points": 6.8, "assists": 0.7, "rebounds": 4.9}'::jsonb),
+('el-25-thompson', 'Darius Thompson', 'Anadolu Efes Istanbul', 'efes', 'PG', 'USA', '{"points": 9.2, "assists": 3.9, "rebounds": 2.1}'::jsonb),
+('el-25-osmani', 'Amath M\'Baye', 'Anadolu Efes Istanbul', 'efes', 'SF', 'Senegal', '{"points": 8.7, "assists": 1.3, "rebounds": 3.6}'::jsonb),
+('el-25-hayes-zal', 'Isaiah Hayes', 'Zalgiris Kaunas', 'zalgiris', 'PG', 'USA', '{"points": 9.8, "assists": 4.2, "rebounds": 2.6}'::jsonb),
+('el-25-butkevicius', 'Dovydas Giedraitis', 'Zalgiris Kaunas', 'zalgiris', 'SF', 'Lithuania', '{"points": 10.3, "assists": 2.1, "rebounds": 3.8}'::jsonb),
+('el-25-francisco', 'Matt Francisco', 'Zalgiris Kaunas', 'zalgiris', 'SF', 'USA', '{"points": 8.5, "assists": 1.7, "rebounds": 4.2}'::jsonb),
+('el-25-walker', 'Brady Walker', 'Zalgiris Kaunas', 'zalgiris', 'C', 'USA', '{"points": 7.9, "assists": 1.2, "rebounds": 5.4}'::jsonb),
+('el-25-ulanovas', 'Edgaras Ulanovas', 'Zalgiris Kaunas', 'zalgiris', 'SF', 'Lithuania', '{"points": 6.7, "assists": 1.5, "rebounds": 3.1}'::jsonb),
+('el-25-shengelia', 'Tornike Shengelia', 'Virtus Segafredo Bologna', 'virtus', 'PF', 'Georgia', '{"points": 12.8, "assists": 2.4, "rebounds": 5.3}'::jsonb),
+('el-25-clyburn', 'Will Clyburn', 'Virtus Segafredo Bologna', 'virtus', 'SF', 'USA', '{"points": 11.7, "assists": 2.8, "rebounds": 4.6}'::jsonb),
+('el-25-hackett', 'Daniel Hackett', 'Virtus Segafredo Bologna', 'virtus', 'PG', 'USA', '{"points": 8.9, "assists": 4.1, "rebounds": 2.5}'::jsonb),
+('el-25-lundberg', 'Matt Morgan', 'Virtus Segafredo Bologna', 'virtus', 'PG', 'USA', '{"points": 10.2, "assists": 3.7, "rebounds": 2.8}'::jsonb),
+('el-25-jaiteh', 'Mouhamet Diouf', 'Virtus Segafredo Bologna', 'virtus', 'C', 'Senegal', '{"points": 7.3, "assists": 0.9, "rebounds": 4.8}'::jsonb),
+('el-25-weiler-babb', 'Andreas Obst', 'FC Bayern Munich', 'bayern', 'SG', 'Germany', '{"points": 11.4, "assists": 2.3, "rebounds": 2.9}'::jsonb),
+('el-25-edwards', 'Carsen Edwards', 'FC Bayern Munich', 'bayern', 'PG', 'USA', '{"points": 13.6, "assists": 3.2, "rebounds": 2.4}'::jsonb),
+('el-25-booker', 'Devin Booker', 'FC Bayern Munich', 'bayern', 'SF', 'USA', '{"points": 9.7, "assists": 2.1, "rebounds": 4.3}'::jsonb),
+('el-25-wimberg', 'Nick Weiler-Babb', 'FC Bayern Munich', 'bayern', 'SG', 'USA', '{"points": 10.8, "assists": 3.8, "rebounds": 3.1}'::jsonb),
+('el-25-giffey', 'Niels Giffey', 'FC Bayern Munich', 'bayern', 'SF', 'Germany', '{"points": 6.9, "assists": 1.4, "rebounds": 2.7}'::jsonb),
+('el-25-canaan', 'Isaiah Canaan', 'Crvena Zvezda Meridianbet Belgrade', 'crvena-zvezda', 'PG', 'USA', '{"points": 12.3, "assists": 3.9, "rebounds": 2.6}'::jsonb),
+('el-25-daum', 'Joel Bolomboy', 'Crvena Zvezda Meridianbet Belgrade', 'crvena-zvezda', 'PF', 'Ukraine', '{"points": 8.7, "assists": 1.1, "rebounds": 6.2}'::jsonb),
+('el-25-dobric', 'Nemanja Nedovic', 'Crvena Zvezda Meridianbet Belgrade', 'crvena-zvezda', 'SG', 'Serbia', '{"points": 10.5, "assists": 2.4, "rebounds": 2.8}'::jsonb),
+('el-25-kalinic', 'Nikola Kalinic', 'Crvena Zvezda Meridianbet Belgrade', 'crvena-zvezda', 'SF', 'Serbia', '{"points": 9.8, "assists": 2.1, "rebounds": 4.1}'::jsonb),
+('el-25-davidovac', 'Luka Mitrovic', 'Crvena Zvezda Meridianbet Belgrade', 'crvena-zvezda', 'C', 'Serbia', '{"points": 6.4, "assists": 0.8, "rebounds": 4.7}'::jsonb),
+('el-25-mekowulu', 'Kwan Cheatham', 'Dubai Basketball', 'dubai', 'PF', 'USA', '{"points": 11.2, "assists": 2.3, "rebounds": 5.8}'::jsonb),
+('el-25-alade', 'Awudu Abass', 'Dubai Basketball', 'dubai', 'SF', 'Nigeria', '{"points": 9.5, "assists": 1.8, "rebounds": 3.4}'::jsonb),
+('el-25-smith-dub', 'Nate Reuvers', 'Dubai Basketball', 'dubai', 'C', 'USA', '{"points": 8.1, "assists": 1.2, "rebounds": 5.3}'::jsonb),
+('el-25-wright', 'Khadeen Carrington', 'Dubai Basketball', 'dubai', 'PG', 'USA', '{"points": 12.7, "assists": 4.1, "rebounds": 2.9}'::jsonb),
+('el-25-johnson', 'Nathan Sobey', 'Dubai Basketball', 'dubai', 'SG', 'Australia', '{"points": 10.3, "assists": 2.7, "rebounds": 3.1}'::jsonb),
+('el-25-pradilla', 'Jaime Pradilla', 'Valencia Basket', 'valencia', 'PF', 'Spain', '{"points": 8.9, "assists": 1.5, "rebounds": 4.6}'::jsonb),
+('el-25-puerto', 'Chris Jones', 'Valencia Basket', 'valencia', 'PG', 'USA', '{"points": 11.4, "assists": 4.8, "rebounds": 2.3}'::jsonb),
+('el-25-lopez-arostegui', 'Xabi Lopez-Arostegui', 'Valencia Basket', 'valencia', 'SF', 'Spain', '{"points": 9.7, "assists": 2.1, "rebounds": 3.9}'::jsonb),
+('el-25-montero', 'Semi Ojeleye', 'Valencia Basket', 'valencia', 'PF', 'USA', '{"points": 10.2, "assists": 1.7, "rebounds": 5.1}'::jsonb),
+('el-25-prepelic', 'Klemen Prepelic', 'Valencia Basket', 'valencia', 'SG', 'Slovenia', '{"points": 12.1, "assists": 2.9, "rebounds": 2.7}'::jsonb),
+('el-25-nunnally', 'Kevin Punter', 'Partizan Mozzart Bet Belgrade', 'partizan', 'SG', 'USA', '{"points": 13.8, "assists": 3.1, "rebounds": 2.9}'::jsonb),
+('el-25-lundberg-par', 'Carlik Jones', 'Partizan Mozzart Bet Belgrade', 'partizan', 'PG', 'USA', '{"points": 12.5, "assists": 5.3, "rebounds": 3.2}'::jsonb),
+('el-25-exum', 'Dante Exum', 'Partizan Mozzart Bet Belgrade', 'partizan', 'PG', 'Australia', '{"points": 10.7, "assists": 4.6, "rebounds": 2.5}'::jsonb),
+('el-25-koprivica', 'Balsa Koprivica', 'Partizan Mozzart Bet Belgrade', 'partizan', 'C', 'Serbia', '{"points": 7.8, "assists": 1.1, "rebounds": 5.7}'::jsonb),
+('el-25-pokusevski', 'Aleksej Pokusevski', 'Partizan Mozzart Bet Belgrade', 'partizan', 'PF', 'Serbia', '{"points": 9.2, "assists": 2.3, "rebounds": 4.9}'::jsonb),
+('el-25-maledon', 'Theo Maledon', 'LDLC ASVEL Villeurbanne', 'asvel', 'PG', 'France', '{"points": 11.8, "assists": 4.7, "rebounds": 2.9}'::jsonb),
+('el-25-lighty', 'Paris Lee', 'LDLC ASVEL Villeurbanne', 'asvel', 'PG', 'USA', '{"points": 9.5, "assists": 3.8, "rebounds": 2.1}'::jsonb),
+('el-25-harrison', 'Nando De Colo', 'LDLC ASVEL Villeurbanne', 'asvel', 'SG', 'France', '{"points": 10.3, "assists": 3.4, "rebounds": 2.6}'::jsonb),
+('el-25-sako', 'Joffrey Lauvergne', 'LDLC ASVEL Villeurbanne', 'asvel', 'C', 'France', '{"points": 8.7, "assists": 1.3, "rebounds": 5.2}'::jsonb),
+('el-25-black', 'Tarik Black', 'LDLC ASVEL Villeurbanne', 'asvel', 'C', 'USA', '{"points": 7.2, "assists": 0.9, "rebounds": 4.8}'::jsonb),
+('el-25-dibartolomeo', 'Lorenzo Brown', 'Maccabi Playtika Tel Aviv', 'maccabi', 'PG', 'USA', '{"points": 12.4, "assists": 5.9, "rebounds": 3.1}'::jsonb),
+('el-25-sorkin', 'Wade Baldwin IV', 'Maccabi Playtika Tel Aviv', 'maccabi', 'SG', 'USA', '{"points": 11.2, "assists": 3.7, "rebounds": 2.8}'::jsonb),
+('el-25-wilbekin', 'Scottie Wilbekin', 'Maccabi Playtika Tel Aviv', 'maccabi', 'PG', 'USA', '{"points": 13.5, "assists": 4.2, "rebounds": 2.5}'::jsonb),
+('el-25-zizic', 'Ante Zizic', 'Maccabi Playtika Tel Aviv', 'maccabi', 'C', 'Croatia', '{"points": 9.8, "assists": 1.4, "rebounds": 6.1}'::jsonb),
+('el-25-blayzer', 'Roman Sorkin', 'Maccabi Playtika Tel Aviv', 'maccabi', 'SF', 'Israel', '{"points": 7.9, "assists": 1.6, "rebounds": 3.4}'::jsonb),
+('el-25-shields', 'Shavon Shields', 'EA7 Emporio Armani Milan', 'milan', 'SF', 'USA', '{"points": 11.7, "assists": 2.4, "rebounds": 4.2}'::jsonb),
+('el-25-mirotic', 'Nikola Mirotic', 'EA7 Emporio Armani Milan', 'milan', 'PF', 'Spain', '{"points": 14.3, "assists": 2.1, "rebounds": 5.8}'::jsonb),
+('el-25-mannion', 'Nico Mannion', 'EA7 Emporio Armani Milan', 'milan', 'PG', 'Italy', '{"points": 10.5, "assists": 4.3, "rebounds": 2.7}'::jsonb),
+('el-25-voigtmann', 'Johannes Voigtmann', 'EA7 Emporio Armani Milan', 'milan', 'C', 'Germany', '{"points": 8.2, "assists": 2.8, "rebounds": 4.9}'::jsonb),
+('el-25-hall', 'Devon Hall', 'EA7 Emporio Armani Milan', 'milan', 'SG', 'USA', '{"points": 9.6, "assists": 2.1, "rebounds": 3.1}'::jsonb),
+('el-25-young', 'Johnathan Motley', 'Hapoel IBI Tel Aviv', 'hapoel', 'PF', 'USA', '{"points": 11.8, "assists": 1.9, "rebounds": 6.3}'::jsonb),
+('el-25-gordon', 'Ish Wainright', 'Hapoel IBI Tel Aviv', 'hapoel', 'SF', 'USA', '{"points": 10.2, "assists": 2.3, "rebounds": 4.7}'::jsonb),
+('el-25-zoosman', 'Yovel Zoosman', 'Hapoel IBI Tel Aviv', 'hapoel', 'SF', 'Israel', '{"points": 8.7, "assists": 1.7, "rebounds": 3.2}'::jsonb),
+('el-25-segev', 'Bar Timor', 'Hapoel IBI Tel Aviv', 'hapoel', 'PG', 'Israel', '{"points": 9.3, "assists": 3.9, "rebounds": 2.4}'::jsonb),
+('el-25-holloway', 'Joe Ragland', 'Hapoel IBI Tel Aviv', 'hapoel', 'PG', 'USA', '{"points": 10.8, "assists": 4.5, "rebounds": 2.8}'::jsonb),
+('el-25-howard', 'Markus Howard', 'Baskonia Vitoria-Gasteiz', 'baskonia', 'PG', 'USA', '{"points": 15.2, "assists": 3.7, "rebounds": 2.3}'::jsonb),
+('el-25-sedekerskis', 'Tadas Sedekerskis', 'Baskonia Vitoria-Gasteiz', 'baskonia', 'SF', 'Lithuania', '{"points": 9.4, "assists": 1.8, "rebounds": 4.1}'::jsonb),
+('el-25-giedraitis-bas', 'Chima Moneke', 'Baskonia Vitoria-Gasteiz', 'baskonia', 'PF', 'Nigeria', '{"points": 10.7, "assists": 2.4, "rebounds": 5.3}'::jsonb),
+('el-25-kotsar', 'Darius Thompson', 'Baskonia Vitoria-Gasteiz', 'baskonia', 'PG', 'USA', '{"points": 8.9, "assists": 4.2, "rebounds": 2.6}'::jsonb),
+('el-25-diop', 'Khalifa Diop', 'Baskonia Vitoria-Gasteiz', 'baskonia', 'C', 'Spain', '{"points": 6.8, "assists": 0.7, "rebounds": 4.9}'::jsonb),
+('el-25-shorts', 'TJ Shorts', 'Paris Basketball', 'paris', 'PG', 'USA', '{"points": 14.8, "assists": 5.4, "rebounds": 3.2}'::jsonb),
+('el-25-ward', 'Collin Malcolm', 'Paris Basketball', 'paris', 'SG', 'USA', '{"points": 10.9, "assists": 2.8, "rebounds": 2.7}'::jsonb),
+('el-25-luwawu', 'Timothe Luwawu-Cabarrot', 'Paris Basketball', 'paris', 'SF', 'France', '{"points": 11.3, "assists": 2.1, "rebounds": 3.8}'::jsonb),
+('el-25-cavaliere', 'Maodo Lo', 'Paris Basketball', 'paris', 'PG', 'Germany', '{"points": 9.2, "assists": 3.5, "rebounds": 2.3}'::jsonb),
+('el-25-jantunen', 'Mikael Jantunen', 'Paris Basketball', 'paris', 'PF', 'Finland', '{"points": 8.5, "assists": 1.6, "rebounds": 4.7}'::jsonb);
+
+-- Generate player prop lines for Round 1
+INSERT INTO public.player_round_lines (player_id, round_id, stat, line, over_odds, under_odds)
+SELECT p.id, 'el-round-1', 'points'::stat_kind, ROUND((p.season_averages->>'points')::numeric * 0.92, 1), 1.90, 1.90
+FROM public.euroleague_players p;
+
+INSERT INTO public.player_round_lines (player_id, round_id, stat, line, over_odds, under_odds)
+SELECT p.id, 'el-round-1', 'assists'::stat_kind, ROUND((p.season_averages->>'assists')::numeric * 0.88, 1), 1.90, 1.90
+FROM public.euroleague_players p;
+
+INSERT INTO public.player_round_lines (player_id, round_id, stat, line, over_odds, under_odds)
+SELECT p.id, 'el-round-1', 'rebounds'::stat_kind, ROUND((p.season_averages->>'rebounds')::numeric * 0.90, 1), 1.90, 1.90
+FROM public.euroleague_players p;
+
+-- Summary
+SELECT
+    'EuroLeague 2025-26 Seed SUCCESS' as status,
+    (SELECT COUNT(*) FROM euroleague_teams) as teams,
+    (SELECT COUNT(*) FROM euroleague_players) as players,
+    (SELECT COUNT(*) FROM euroleague_rounds) as rounds,
+    (SELECT COUNT(*) FROM player_round_lines WHERE round_id = 'el-round-1') as lines;
